@@ -1,11 +1,5 @@
 ## Analysis
 
-### pixy
-`cat *dxy.txt > allscaf_dxy.txt`
-`cat *pi.txt > allscaf_pi.txt`
-`cat *fst.txt > allscaf_fst.txt`
-
-
 ### Trees
 
 #### Windowed gene trees
@@ -57,6 +51,35 @@ done
 ```
 
 Here I generate aligned fasta for each CDS, excluding individuals with > 50% missing data. The script is fast, and possible to use without batch submission. But for many samples or many CDS regions, it would be wise to write a batch script so as not to overload the head node.
+
+
+I also generated individual fasta files for each CDS for the reference genome. This will be useful for later inferences when looking at function of specific genomic regions.
+```
+#give the 1mb genome and desired output directory
+
+refgenome="/work/bs66/project_compare_genomes/annot_Pdavidsonii_genome.1mb.fasta"
+bedfile="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes.bed"
+outdir="/work/bs66/project_compare_genomes/davidsonii_CDS"
+
+
+gffread -x $outdir/concat_CDS_davidsonii_refgenome.fa -C -M -K -Y -E --sort-alpha -g $refgenome $bedfile
+
+
+#change to single line per fasta
+for i in *.fa;
+do
+    awk '/^>/ { if(NR>1) print "";  printf("%s\n",$0); next; } { printf("%s",$0);}  END {printf("\n");}' < $i > "${i/.fa/.fixed.fa}"
+    rm $i
+done
+
+
+#use python script to generate individual fastas for each CDS
+python3 CDS_TREES.concat_CDS_fastas.py -i concat_CDS_davidsonii_refgenome.fixed.fa -o $outdir
+
+#remove files no longer needed
+#rm CDS_TREES.concat_CDS_fastas.py
+#rm concat_CDS_davidsonii_refgenome.fa
+```
 
 
 ##### Estimate CDS gene trees
@@ -172,10 +195,44 @@ Next, combine Dtrios output for each scaffold into a genome-wide analysis. These
 
 Finally, investigate targeted triplets of interest for sliding window introgression metrics. I tested a few different window sizes. As an example:
 * For conducting this analysis, see [`DSTATS_3a.dsuite_Dinvestigate_1000_500.sh.sh`](Dstats/DSTATS_3a.dsuite_Dinvestigate_1000_500.sh). Will also need [`popset_dtrios.txt`](Dstats/popset_dtrios.txt)
-* For plotting output of this analysis, see [`plot_Dinvestigate.R`](Dstats/plot_Dinvestigate.R)
+* For plotting output of this analysis and generating outfile for outlier windows, see, for example: [`plot_Dinvestigate_Dwindow_1000_500.R`](Dstats/plot_Dinvestigate_Dwindow_1000_500.R)
 
 
 
 
-### Gene identities in significant outliers from D-window analyses
-Use the input bedfile from the first three columns of output from the sliding D window script.
+#### Gene identities in significant outliers from D-window analyses
+
+Using output from sliding window D analyses, identify the CDS in outlier windows and their function. First, use bedtools intersect to identify maker CDS in these windows.
+
+```shell
+CDSannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes.bed"
+fullannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_genome.gff"
+
+#bedtools command
+bedtools intersect -a significant_windows_1000_500_z4.bed -b $CDSannot -wb > CDS-hits_only_1000_500_z4.bed
+
+```
+
+Next we will want to make a local blastx database against which we will blast the CDS. To do this we use the swissprot database. Set this up like so:
+
+```shell
+wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/swissprot.gz
+gunzip swissprot.gz
+
+module load blast
+makeblastdb -dbtype prot -in swissprot
+
+mkdir db_Swissprot
+mv swissprot* db_Swissprot/
+```
+
+###insert information about script: "BLASTX_Dwindow_CDS.sh"
+
+
+
+### pixy CDS
+We obtained unbiased extimates of Dxy from pixy between species in the NCR clade (newberryi, cardwellii, rupicola) to assess how inferred relationships differ depending on the gene of interest. First, we compared Dxy between P. rupicola, P. newberryi, and P. cardwellii in all CDS regions. CDS were required to have > 100 sites and missing count/count comparisons was required to be < 50%. We generated plots for scenarios grouping all individuals by species (fullspecies) as well as specific individual-by-individual comparisons. As expected, Dxy in CDS regions between P. newberryi and P. cardwellii were on average lower than average Dxy between P. newberryi and P. rupicola, and between P. rupicola and P. cardwellii. This pattern held whether we grouped individuals by species (fullspecies) or whether we made individual-by-individual comparisons (popspecific).
+* For pixy analyses, see [`PIXY_1a.CDS_NCR_fullspecies.sh`](pixy/pixy_CDS/PIXY_1a.CDS_NCR_fullspecies.sh) and [`popfile_1a.NCR_fullspecies.txt`](pixy/pixy_CDS/popfile_1a.NCR_fullspecies.txt)
+* For plotting, see [`plot_pixy_CDS_dxy.R`](pixy/pixy_CDS/plot_pixy_CDS_dxy.R)
+
+
