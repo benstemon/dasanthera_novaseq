@@ -181,6 +181,16 @@ outdir="/work/bs66/dasanthera_novaseq/analysis/treemetrics"
 ete3 compare --src_tree_list $treelist -r $reftree --unrooted --taboutput > $outdir/RFdistance_10kbwindow_astralref.txt
 ```
 
+##### Finding discordant topologies given specified triplets
+- conda activate quibl_etc
+
+- manually remove all annotations and branch length information -- just use topology of CDS astral species tree
+
+Use R script to determine whether pruned triplets are concordant, discordant, etc.
+
+
+
+
 
 ### D-statistics and related metrics
 * Using Dsuite to calculate various metrics related to introgression
@@ -227,6 +237,9 @@ mv swissprot* db_Swissprot/
 ```
 
 ###insert information about script: "BLASTX_Dwindow_CDS.sh"
+
+
+
 
 
 
