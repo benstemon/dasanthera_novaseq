@@ -236,7 +236,7 @@ mkdir db_Swissprot
 mv swissprot* db_Swissprot/
 ```
 
-###insert information about script: "BLASTX_Dwindow_CDS.sh"
+Finally, see [`Dwindow_BLASTX_CDS.sh`](Dwindow_outlier_analysis/Dwindow_BLASTX_CDS.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
 
 
 
