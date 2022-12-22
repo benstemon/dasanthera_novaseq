@@ -74,7 +74,7 @@ scaffoldnames=$(awk '{print $1}' $faidxfile)
 
 samtools faidx $refgenome ${scaffoldnames[@]} | 
  bcftools consensus --haplotype I \
- --absent "N" \
+ --absent "-" \
  --missing "N" \
  --mark-del "-" \
  --sample $infile \

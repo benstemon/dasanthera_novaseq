@@ -6,8 +6,6 @@
 #SBATCH --job-name=pixy_CDS_NCR_popspecific
 #SBATCH --output=slurm-pixy_CDS_NCR_popspecific_%j.out
 
-##NOTE: this is an arrayed batch script, requiring special syntax to submit jobs. The array in this case is relevant for the number of scaffolds (chromosomes) on which you would like to run pixy. Changes to the parameter "chromlist" are also necessary.
-
 
 cd $SLURM_SUBMIT_DIR
 

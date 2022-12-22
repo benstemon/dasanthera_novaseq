@@ -1,6 +1,7 @@
 library(tidyverse)
 library(gridExtra)
 setwd("~/Desktop/Dstats/Dwindow_500_250")
+setwd("~/project storage/project_dasanthera_novaseq/results/Dstats/Dwindow_500_250/")
 
 #set Z-score variable to identify outlier windows. Higher value is more conservative
 ZTHRESH = 4
@@ -88,6 +89,48 @@ pdf(paste('davidsonii_x_newberryi_f_dM_window_500_250_z', ZTHRESH, '.pdf',
 for (i in 1:length(scaflist)){
   print(get(paste("p", i, sep = "")))
 }
+dev.off()
+############################################################
+
+#Test 1.2
+#on the one hand, dav-new should be present in all, so could show all
+#on the other, for that reason could also only show one
+#end goal ?? -- for now, just two different sets of allopatric pops (4 total)
+############################################################
+t1 <- read.table("rup_98_new_75_dav_117_localFstats__500_250.txt", as.is = T, header = T)
+t2 <- read.table("rup_98_new_80_dav_87_localFstats__500_250.txt", as.is = T, header = T)
+
+
+#to subset data into different scaffolds ...
+#add extra column to each test, specifying which test it is:
+t1$testname <- "rup_98_new_75_dav_117"
+t2$testname <- "rup_98_new_80_dav_87"
+
+
+#Let's just plot this, first:
+#combine into new df
+badscaf <- c('scaffold_2531','scaffold_2446','scaffold_2151','scaffold_1085')
+comb_df <- rbind(t1, t2) %>%
+  filter(!chr %in% badscaf)
+
+#plot per chromosome, for both groups
+a <- ggplot(comb_df, aes(x = f_dM)) +
+  geom_histogram(binwidth = 0.01) +
+  facet_grid(chr ~ testname,
+             scales = "free_y", switch = "x", space = "free_x") +
+  theme(strip.text.y.right = element_text(angle = 0)) +
+  ggtitle("fDM distribution for car-new-dav in allopatric (left) populations per scaffold")
+
+#plot total fDM distribution
+b <- ggplot(comb_df, aes(x = f_dM)) +
+  geom_histogram(binwidth = 0.01) +
+  facet_grid(testname ~.,
+             scales = "free_y", switch = "x", space = "free_x") +
+  ggtitle("Genome-wide fDM distribution for car-new-dav in allopatric populations")
+
+pdf("~/Desktop/fDM_distribution_new-dav.pdf")
+print(a)
+print(b)
 dev.off()
 ############################################################
 
@@ -251,6 +294,51 @@ for (i in 1:length(scaflist)){
 }
 dev.off()
 ############################################################
+
+#Test 2.3
+#special interest in rup86-new85 (shasta) and rup98-new80 comparison
+#the first are the Shasta samples, and the second are Plumas Co. & Rattlesnake Ledge
+############################################################
+#read in results
+t1 <- read.table("car_91_new_80_rup_98_localFstats__500_250.txt", as.is = T, header = T)
+t2 <- read.table("car_91_new_85_rup_86_localFstats__500_250.txt", as.is = T, header = T)
+
+#to subset data into different scaffolds ...
+#add extra column to each test, specifying which test it is:
+t1$testname <- "car_91_new_80_rup_98"
+t2$testname <- "car_91_new_85_rup_86"
+
+
+#Let's just plot this, first:
+#combine into new df
+
+badscaf <- c('scaffold_2531','scaffold_2446','scaffold_2151','scaffold_1085')
+comb_df <- rbind(t1, t2) %>%
+  filter(!chr %in% badscaf)
+
+#plot per chromosome, for both groups
+
+a <- ggplot(comb_df, aes(x = f_dM)) +
+  geom_histogram(binwidth = 0.01) +
+  facet_grid(chr ~ testname,
+             scales = "free_y", switch = "x", space = "free_x") +
+  theme(strip.text.y.right = element_text(angle = 0)) +
+  ggtitle("fDM distribution for car-rup-new in allopatric (left) and Mt. Shasta (right) populations per scaffold")
+
+#plot total fDM distribution
+b <- ggplot(comb_df, aes(x = f_dM)) +
+  geom_histogram(binwidth = 0.01) +
+  facet_grid(testname ~.,
+             scales = "free_y", switch = "x", space = "free_x") +
+  ggtitle("Genome-wide fDM distribution for car-rup-new in allopatric (top) and Mt. Shasta (bottom) populations")
+
+pdf("~/Desktop/fDM_distribution_rup-new.pdf")
+print(a)
+print(b)
+dev.off()
+############################################################
+
+
 
 
 #Test 3
