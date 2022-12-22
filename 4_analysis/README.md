@@ -258,9 +258,28 @@ We also obtained estimates of Dxy from all possible samples. This data set is re
 
 ### geodist_gendist
 
-We examined the relationship between dxy and geographic distance amongst all possible population comparisons. Plots were made on a per-species basis.
+We examined the relationship between genome-wide dxy and geographic distance amongst all possible population comparisons. Plots were made on a per-species basis.
 * See [`geodist_gendist_plotting.R`](geodist_gendist/geodist_gendist_plotting.R) for the R script to filter and plot data, and [`dasanthera_coords.txt`](geodist_gendist/dasanthera_coords.txt) for coordinate data for each population.
 
+
+
+
+
+
+
+### Genomic PCA
+Using the filtered .vcf file, generate a genome-wide PCA.
+* See script [`generate_biallelic-filtered_vcf.sh`](PCA/generate_biallelic-filtered_vcf.sh)
+
+Then use following code in plink to generate PCA
+```
+#generate files for PCA
+plink --vcf PCA-ready_biallelic_ld-filtered.vcf --double-id --allow-extra-chr \
+ --set-missing-var-ids @:# --make-bed --pca --out PCA
+```
+I noticed that this produces eigenvalues that don't look right (negative values). So, I performed a second PCA using a different method to compare to the plink version.
+
+* See [`plot_plinkPCA_and_generate_adegenetPCA.R`](PCA/plot_plinkPCA_and_generate_adegenetPCA.R) For the R script which plots the plink output and has a second section to perform PCA in adegenet.
 
 
 
