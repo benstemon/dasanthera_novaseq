@@ -289,5 +289,5 @@ I noticed that this produces eigenvalues that don't look right (negative values)
 ### TWISST
 Using the 10kb gene trees, we ran TWISST. We focused on the NCR and NCRD clades for simplification. Plots were made by smoothing weightings in 2Mb increments.
 * See [`TWISST_1.run_twisst.sh`](twisst/TWISST_1.run_twisst.sh) for the shell script to run TWISST. This requires [`twisst_groupsfile.txt`](twisst/twisst_groupsfile.txt) to function.
-* See [`plot_twisst_output.R`] for plotting TWISST output.
+* See [`plot_twisst_output.R`](twisst/plot_twisst_output.R) for plotting TWISST output.
 
