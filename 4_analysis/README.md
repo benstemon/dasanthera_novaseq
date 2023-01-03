@@ -258,8 +258,8 @@ We also obtained estimates of Dxy from all possible samples. This data set is re
 
 ### geodist_gendist
 
-We examined the relationship between genome-wide dxy and geographic distance amongst all possible population comparisons. Plots were made on a per-species basis.
-* See [`geodist_gendist_plotting.R`](geodist_gendist/geodist_gendist_plotting.R) for the R script to filter and plot data, and [`dasanthera_coords.txt`](geodist_gendist/dasanthera_coords.txt) for coordinate data for each population.
+We examined the relationship between genome-wide dxy and geographic distance amongst all possible population comparisons. Plots were made on a per-species basis. We also used these dxy comparisons to make MDS plots (multidimensional scaling).
+* See [`geodist_gendist_MDS_plotting.R`](geodist_gendist_MDS/geodist_gendist_MDS_plotting.R) for the R script to filter and plot data, and [`dasanthera_coords.txt`](geodist_gendist_MDS/dasanthera_coords.txt) for coordinate data for each population.
 
 
 
@@ -282,4 +282,12 @@ I noticed that this produces eigenvalues that don't look right (negative values)
 * See [`plot_plinkPCA_and_generate_adegenetPCA.R`](PCA/plot_plinkPCA_and_generate_adegenetPCA.R) For the R script which plots the plink output and has a second section to perform PCA in adegenet.
 
 
+
+
+
+
+### TWISST
+Using the 10kb gene trees, we ran TWISST. We focused on the NCR and NCRD clades for simplification. Plots were made by smoothing weightings in 2Mb increments.
+* See [`TWISST_1.run_twisst.sh`](twisst/TWISST_1.run_twisst.sh) for the shell script to run TWISST. This requires [`twisst_groupsfile.txt`](twisst/twisst_groupsfile.txt) to function.
+* See [`plot_twisst_output.R`] for plotting TWISST output.
 

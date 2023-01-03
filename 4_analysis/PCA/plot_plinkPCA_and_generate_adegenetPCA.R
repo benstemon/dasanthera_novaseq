@@ -33,7 +33,8 @@ a <- ggplot(pca, aes(x = PC1, y = PC2, col = species)) + geom_point() +
   geom_label_repel(aes(label = pop),
                    box.padding = 0.5,
                    point.padding = 0,
-                   force = 25) +
+                   force = 25,
+                   show.legend  = F) +
   xlab(paste0("PC1 (", signif(pve$pve[1], 3), "%)")) +
   ylab(paste0("PC2 (", signif(pve$pve[2], 3), "%)")) +
   ggtitle("genome-wide PCA -- plink version -- PC1 and 2")
@@ -44,14 +45,28 @@ b <- ggplot(pca, aes(x = PC2, y = PC3, col = species)) + geom_point() +
   geom_label_repel(aes(label = pop),
                    box.padding = 0.5,
                    point.padding = 0,
-                   force = 25) +
+                   force = 25,
+                   show.legend  = F) +
   xlab(paste0("PC2 (", signif(pve$pve[2], 3), "%)")) +
   ylab(paste0("PC3 (", signif(pve$pve[3], 3), "%)")) +
   ggtitle("genome-wide PCA -- plink version -- PC2 and 3")
 
+#PC3 and PC4
+c <- ggplot(pca, aes(x = PC3, y = PC4, col = species)) + geom_point() +
+  scale_color_manual(values = c("purple", "skyblue","blue", "grey", "black", "red", "pink"))+
+  geom_label_repel(aes(label = pop),
+                   box.padding = 0.5,
+                   point.padding = 0,
+                   force = 25,
+                   show.legend  = F) +
+  xlab(paste0("PC3 (", signif(pve$pve[3], 3), "%)")) +
+  ylab(paste0("PC4 (", signif(pve$pve[4], 3), "%)")) +
+  ggtitle("genome-wide PCA -- plink version -- PC3 and 4")
+
 pdf("genome_PCA-plink.pdf")
 print(a)
 print(b)
+print(c)
 dev.off()
 
 
@@ -93,8 +108,8 @@ pve <- data.frame(PC = 1:length(pca$eig), pve = pca$eig/sum(pca$eig)*100)
 
 #need to transform this a bit because the the PCA object isn't in the best format
 #so just add PCA values to the t object
-r <- cbind(t, pca$scores[,1], pca$scores[,2], pca$scores[,3])
-colnames(r)[4:6] <- c('PC1', 'PC2', 'PC3')
+r <- cbind(t, pca$scores[,1], pca$scores[,2], pca$scores[,3], pca$scores[,4])
+colnames(r)[4:7] <- c('PC1', 'PC2', 'PC3', 'PC4')
 
 
 #plot again
@@ -104,7 +119,8 @@ a <- ggplot(r, aes(x = PC1, y = PC2, col = species)) + geom_point() +
   geom_label_repel(aes(label = pop),
                    box.padding = 0.5,
                    point.padding = 0,
-                   force = 25) +
+                   force = 25,
+                   show.legend  = F) +
   xlab(paste0("PC1 (", signif(pve$pve[1], 3), "%)")) +
   ylab(paste0("PC2 (", signif(pve$pve[2], 3), "%)")) +
   ggtitle("genome-wide PCA -- adegenet version -- PC1 and 2")
@@ -115,14 +131,28 @@ b <- ggplot(r, aes(x = PC2, y = PC3, col = species)) + geom_point() +
   geom_label_repel(aes(label = pop),
                    box.padding = 0.5,
                    point.padding = 0,
-                   force = 25) +
+                   force = 25,
+                   show.legend  = F) +
   xlab(paste0("PC2 (", signif(pve$pve[2], 3), "%)")) +
   ylab(paste0("PC3 (", signif(pve$pve[3], 3), "%)")) +
   ggtitle("genome-wide PCA -- adegenet version -- PC2 and 3")
 
+#PC3 and 4
+c <- ggplot(r, aes(x = PC3, y = PC4, col = species)) + geom_point() +
+  scale_color_manual(values = c("purple", "skyblue","blue", "grey", "black", "red", "pink"))+
+  geom_label_repel(aes(label = pop),
+                   box.padding = 0.5,
+                   point.padding = 0,
+                   force = 25,
+                   show.legend  = F) +
+  xlab(paste0("PC3 (", signif(pve$pve[3], 3), "%)")) +
+  ylab(paste0("PC4 (", signif(pve$pve[4], 3), "%)")) +
+  ggtitle("genome-wide PCA -- adegenet version -- PC3 and 4")
+
 pdf("genome_PCA-adegenet.pdf")
 print(a)
 print(b)
+print(c)
 dev.off()
 
 
