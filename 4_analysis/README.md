@@ -155,31 +155,10 @@ The concatenated ML species tree is estimated in IQtree. I specified the GTR+I+R
 
 #### Tree metrics
 ##### Robinson-Foulds distance
-Using the conda install version of ete3 here. I am having trouble getting this to work through batch submission, so used an interactive node instead.
-
-```
-idev
-
-#source appropriate environments to enable use of conda installs through batch submission
-source /home/bs66/.bashrc
-source /home/bs66/.bash_profile
+Plotting normalized RF distance of 10kb sliding window trees compared to the species tree. This was plotted along with genic content to visualize whether there is a relationship between RF distance and genic content along scaffolds. For the script to calculate RF distance and plot results, see [`plot_RF_x_genecontent.R`](treemetrics/plot_RF_x_genecontent.R)
 
 
-#activate conda environment with packages installed
-#need ete3 installed
-conda activate quibl_etc
 
-
-#specify reference (species) tree, and the combined window tree file
-#reference tree should not have annotations so I made a new, cleaned up treefile
-reftree="/work/bs66/dasanthera_novaseq/analysis/astral_trees/astral_10kb_noannotations.tre"
-treelist="/work/bs66/dasanthera_novaseq/analysis/treemetrics/combined_10kbwindowtrees.tre"
-outdir="/work/bs66/dasanthera_novaseq/analysis/treemetrics"
-
-
-#run ete3
-ete3 compare --src_tree_list $treelist -r $reftree --unrooted --taboutput > $outdir/RFdistance_10kbwindow_astralref.txt
-```
 
 ##### Finding discordant topologies given specified triplets
 - conda activate quibl_etc
@@ -253,6 +232,15 @@ We obtained unbiased estimates of Dxy from pixy between species in the NCR clade
 #### pixy allpops
 We also obtained estimates of Dxy from all possible samples. This data set is redundant with pixy NCR, so at some point I should reconcile that.
 * See [`PIXY_allpops_1.CDS_NCR_popspecific.sh`](pixy/pixy_CDS_allpops/PIXY_allpops_1.CDS_NCR_popspecific.sh) for the bash script and [`popfile_allpops.NCR_popspecific.txt`](pixy/pixy_CDS_allpops/popfile_allpops.NCR_popspecific.txt) for the popfile.
+
+
+
+
+### pixy fullgenome
+#### fullspecies 10kb
+For this analysis, we estimated pi, dxy, and fst genome-wide for all cross-species comparisons. These were estimated in 10kb and 50kb stretches. Species were assigned to their taxonomic affinity. "dav118" was assigned to P. fruticosus.
+
+The goal of this analysis is to look for evidence of selection, namely, regions with low pi and high dxy/fst between different "morphs" (in this case, different pollination syndromes).
 
 
 
