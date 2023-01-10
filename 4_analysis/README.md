@@ -160,14 +160,6 @@ Plotting normalized RF distance of 10kb sliding window trees compared to the spe
 
 
 
-##### Finding discordant topologies given specified triplets
-- conda activate quibl_etc
-
-- manually remove all annotations and branch length information -- just use topology of CDS astral species tree
-
-Use R script to determine whether pruned triplets are concordant, discordant, etc.
-
-
 
 
 
