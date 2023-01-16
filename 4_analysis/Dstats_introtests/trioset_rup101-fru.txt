@@ -1,0 +1,4 @@
+new	rup101	fru
+car	rup101	fru
+rup	rup101	fru
+dav	fru	rup101

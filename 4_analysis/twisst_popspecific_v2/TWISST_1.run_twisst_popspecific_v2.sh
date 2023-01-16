@@ -23,7 +23,7 @@ conda activate ete3_twisst
 #specify invcfdir, invcf, outdir, faidx file, tree file
 twisst="/work/bs66/software/twisst"
 intrees="/work/bs66/dasanthera_novaseq/analysis/treemetrics/combined_10kbwindowtrees.tre"
-outdir="/work/bs66/dasanthera_novaseq/analysis/twisst_popspecific"
+outdir="/work/bs66/dasanthera_novaseq/analysis/twisst_popspecific_v2"
 
 
 ##########
@@ -46,24 +46,24 @@ python $twisst/twisst.py -t $intrees \
 #run twisst for dav116 tests
 python $twisst/twisst.py -t $intrees \
  -w $outdir/twisst_dav116_t1.weights.txt.gz \
- -g ncr -g fru -g dav116 -g mon --outgroup mon \
+ -g dav116 -g fru118 -g ncr -g mon --outgroup mon \
  --method complete --groupsFile $outdir/groupsfile_test-dav116.txt
 
 python $twisst/twisst.py -t $intrees \
  -w $outdir/twisst_dav116_t2.weights.txt.gz \
- -g ncr -g fru -g dav -g mon --outgroup mon \
+ -g dav -g fru118 -g ncr -g mon --outgroup mon \
  --method complete --groupsFile $outdir/groupsfile_test-dav116.txt
 
 
 #run twisst for rup101 tests
 python $twisst/twisst.py -t $intrees \
  -w $outdir/twisst_rup101_t1.weights.txt.gz \
- -g dav -g fru -g rup101 -g mon --outgroup mon \
+ -g fru -g dav -g rup101 -g mon --outgroup mon \
  --method complete --groupsFile $outdir/groupsfile_test-rup101.txt
 
 python $twisst/twisst.py -t $intrees \
  -w $outdir/twisst_rup101_t2.weights.txt.gz \
- -g dav -g fru -g rup -g mon --outgroup mon \
+ -g fru -g dav -g rup -g mon --outgroup mon \
  --method complete --groupsFile $outdir/groupsfile_test-rup101.txt
 
 
@@ -71,12 +71,12 @@ python $twisst/twisst.py -t $intrees \
 #run twisst for new-dav tests
 python $twisst/twisst.py -t $intrees \
  -w $outdir/twisst_new-dav_t1.weights.txt.gz \
- -g dav -g fru -g new -g mon --outgroup mon \
+ -g dav -g fru118 -g new -g mon --outgroup mon \
  --method complete --groupsFile $outdir/groupsfile_test-new-dav.txt
 
 python $twisst/twisst.py -t $intrees \
  -w $outdir/twisst_new-dav_t2.weights.txt.gz \
- -g dav -g fru -g car -g mon --outgroup mon \
+ -g dav -g fru118 -g car -g mon --outgroup mon \
  --method complete --groupsFile $outdir/groupsfile_test-new-dav.txt
 
 

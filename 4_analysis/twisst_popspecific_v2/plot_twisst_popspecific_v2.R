@@ -1,6 +1,8 @@
 setwd("~/Desktop/")
 library(tidyverse)
-library(gridExtra)
+library(cowplot)
+library(readr)
+library(utils)
 
 #for setting up window data file:
 #windows as current are not ordered numerically, so there needs to be reordering
@@ -25,7 +27,7 @@ windows_and_weights <- tmp_windows %>%
 #set up initial weights file and add to windows_and_weights
 #toponumber = the number of topologies at the beginning of the weights file
 toponumber = 3
-tmp_weights <- read.delim("twisst_popspecific/twisst_rup86_t2.weights.txt.gz",
+tmp_weights <- read.delim("twisst_popspecific_v2/twisst_rup86_t2.weights.txt.gz",
                           sep = '\t', skip = toponumber)
 windows_and_weights <- cbind(windows_and_weights, tmp_weights)
 
@@ -36,23 +38,20 @@ windows_and_weights <- arrange(windows_and_weights, scaffold, start)
 
 
 #now these need to be written to new files for weights and windows, respectively
-library(readr)
-library(utils)
-
 #first, windows:
 newwindow <- windows_and_weights[,1:6]
 
 #write windows file
-con <- gzfile("REORDERED_WINDOWS_10kbtrees.tsv.gz", "w")
-write.table(as.data.frame(newwindow), con,
-            sep = '\t', quote = F, row.names = F)
-close(con)
+#con <- gzfile("REORDERED_WINDOWS_10kbtrees.tsv.gz", "w")
+#write.table(as.data.frame(newwindow), con,
+#            sep = '\t', quote = F, row.names = F)
+#close(con)
 
 
 #next, the weights (and header for the weights file):
 #starts at col 8 and continues to the end of the table
 newweights <- windows_and_weights[,8:ncol(windows_and_weights)]
-weightsheader <- as.data.frame(readLines("twisst_popspecific/twisst_rup86_t2.weights.txt.gz",
+weightsheader <- as.data.frame(readLines("twisst_popspecific_v2/twisst_rup86_t2.weights.txt.gz",
                                          n = toponumber))
 con <- gzfile("REORDERED_WEIGHTS_rup86_t2.tsv.gz", "w")
 write.table(as.data.frame(weightsheader), con,
@@ -79,11 +78,11 @@ close(con)
 source("~/project storage/project_dasanthera_novaseq/results/twisst/source_plot_twisst.R")
 
 #window data file
-window_data_file <- "~/Desktop/twisst_popspecific/REORDERED_WINDOWS_10kbtrees.tsv.gz"
+window_data_file <- "~/Desktop/twisst_popspecific_v2/REORDERED_WINDOWS_10kbtrees.tsv.gz"
 
 #info for test 1 and test 2 weights
-weights_file1 <- "~/Desktop/twisst_popspecific/REORDERED_WEIGHTS_rup86_t1.tsv.gz"
-weights_file2 <- "~/Desktop/twisst_popspecific/REORDERED_WEIGHTS_rup86_t2.tsv.gz"
+weights_file1 <- "~/Desktop/twisst_popspecific_v2/REORDERED_WEIGHTS_rup101_t1.tsv.gz"
+weights_file2 <- "~/Desktop/twisst_popspecific_v2/REORDERED_WEIGHTS_rup101_t2.tsv.gz"
 
 
 #generate twisst data frames
@@ -161,7 +160,7 @@ c <- ggplot(newdf, aes(x = pos/1000000)) +
 #generate plot
 rightpanel <- plot_grid(a, b, ncol = 1, scale = c(0.8, 0.8))
 
-pdf("rup86_tests.pdf", width = 40, height = 10)
+pdf("twisstplot_rup101_tests.pdf", width = 40, height = 10)
 plot_grid(c, rightpanel, ncol = 2, rel_widths = c(6,1), scale = c(0.95, 0.95))
 dev.off()
 
@@ -171,79 +170,126 @@ dev.off()
 
 
 
+#PLOTTING DIFFERENCES ACROSS TAXA
+########################################
+setwd("~/Desktop/twisst_popspecific_v2/")
+
+#call in the twisst plotting functions provided by devs
+source("~/project storage/project_dasanthera_novaseq/results/twisst/source_plot_twisst.R")
 
 
+#make list of comparison tests and basename for files to read in
+basename = "REORDERED_WEIGHTS_"
+testnames <- c("dav116", "new-dav", "rup86", "rup101")
 
 
-###### original code
-#get list of scaffold names
-scaflist <- names(twisst_data$lengths)
+#specify the window data file
+window_data_file <- "~/Desktop/twisst_popspecific_v2/REORDERED_WINDOWS_10kbtrees.tsv.gz"
 
-setwd('~/Desktop/twisst_plotting_output/')
 
-#loop to generate twisst plots for each scaffold
-for (i in 1:length(scaflist)){
-  #generate subset data
-  twisst_subdata <- subset.twisst.by.regions(twisst_data, scaflist[i])
+#make df to store all the relevant data
+newdf <- data.frame()
+
+
+#parameters to tune:
+param_twisst_span = 2000000
+param_twisst_space = 5000
+
+#for loop which does the following:
+#for each testname, read in the corresponding weights files
+#for each of the main scaffolds, subset the data, and smooth at specified bp and spacing
+#finally, add some additional ID information, and write to object "newdf"
+for (j in 1:length(testnames)){
+  #specify window and weights data files
+  weights_file1 <- paste(basename, testnames[j], "_t1.tsv.gz", sep = "")
+  weights_file2 <- paste(basename, testnames[j], "_t2.tsv.gz", sep = "")
   
-  #start pdf plot
-  pdf(paste(scaflist[i], "twisst_plot_NCR.pdf", sep = '_'))
   
-  #plot summary
-  plot.twisst.summary(twisst_subdata, lwd=3, cex=0.7)
+  #generate twisst data frames
+  twisst_data1 <- import.twisst(weights_files=weights_file1,
+                                window_data_files=window_data_file)
   
-  #generate and plot smoothed data
-  twisst_data_smooth <- smooth.twisst(twisst_subdata, span_bp = 2000000, spacing = 5000)
-  plot.twisst(twisst_data_smooth, mode=2) #mode 2 overlays polygons, mode 3 would stack them
-  plot.twisst(twisst_data_smooth, mode=3) #mode 2 overlays polygons, mode 3 would stack them
-  dev.off()
+  twisst_data2 <- import.twisst(weights_files=weights_file2,
+                                window_data_files=window_data_file)
+  
+  #generate list for good scaffolds
+  scaflist <- names(twisst_data1$lengths)
+  scaflist <- scaflist[!scaflist %in% 
+                         c("scaf_2531", "scaf_2446", "scaf_2151", "scaf_1085")]
+  
+  
+  #set up test 1 df in the newdf
+  for (i in 1:length(scaflist)){
+    twisst_subdata <- subset.twisst.by.regions(twisst_data1, scaflist[i])
+    twisst_data_smooth <- smooth.twisst(twisst_subdata,
+                                        span_bp = param_twisst_span,
+                                        spacing = param_twisst_space)
+    
+    #make new df, add extra information as needed
+    tmpdf <- as.data.frame(twisst_data_smooth$pos); colnames(tmpdf)[1] <- "pos"
+    tmpdf$chromosome <- scaflist[i]
+    tmpdf$testno <- "test1"
+    tmpdf$testname <- testnames[j]
+    tmpdf <- cbind(tmpdf, as.data.frame(twisst_data_smooth$weights))
+    
+    
+    
+    #bind to newdf
+    newdf <- rbind(newdf, tmpdf)
+  }
+  
+  #and now add the test 2 information so we can plot all together
+  for (i in 1:length(scaflist)){
+    twisst_subdata <- subset.twisst.by.regions(twisst_data2, scaflist[i])
+    twisst_data_smooth <- smooth.twisst(twisst_subdata,
+                                        span_bp = param_twisst_span,
+                                        spacing = param_twisst_space)
+    
+    #make new df
+    tmpdf <- as.data.frame(twisst_data_smooth$pos); colnames(tmpdf)[1] <- "pos"
+    tmpdf$chromosome <- scaflist[i]
+    tmpdf$testno <- "test2"
+    tmpdf$testname <- testnames[j]
+    tmpdf <- cbind(tmpdf, as.data.frame(twisst_data_smooth$weights))
+    
+    
+    #bind to newdf
+    newdf <- rbind(newdf, tmpdf)
+  }
 }
+
+
+
+#now we have a large df with all the plotting information.
+#But we want to make an additional metric
+#we want to know the difference between each of the topo values in test 1 vs test 2
+#for each window, for each comparison
+filtered_newdf <- newdf %>%
+  group_by(pos, chromosome, testname) %>%
+  mutate(diff_concordant = -diff(topo1)) %>%
+  mutate(diff_disc1 = -diff(topo2)) %>%
+  mutate(diff_disc2 = -diff(topo3)) %>%
+  filter(!testno == "test2") %>%
+  select(-c(testno, topo1, topo2, topo3)) %>%
+  ungroup()
+
+#restructure this to have an easier time plotting:
+finalplot <- pivot_longer(data = filtered_newdf,
+                     cols = c("diff_concordant", "diff_disc1", "diff_disc2"),
+                     names_to = c("topology_diff"))
+
+
+#now we can plot each of the four comparisons on a single plot
+#to see how the differences in twisst topology weights may be similar across comparisons
+legendcolors <- c("diff_concordant" = "green", "diff_disc1" = "orange", "diff_disc2" = "blue")
+
+pdf("topodiffs_twisst_cross-comparisons.pdf", width = 15, height = 9)
+ggplot(finalplot, aes(x = pos/1000000, y = value)) +
+  geom_line(aes(col = topology_diff)) +
+  facet_grid(testname ~ chromosome,
+             scales = "free_x", space = "free_x") +
+  xlab("Position on scaffold (Mb)") +
+  ylab("Difference in weighting between test 1 and test 2") +
+  scale_color_manual(values = legendcolors)
+dev.off()
 ########################################
-
-
-
-
-
-#PLOTTING FOR NCRD! (15 topologies)
-########################################
-weights_file <- "~/Desktop/twisst_analyses/REORDERED_WEIGHTS_NCRD_10kbtrees.tsv.gz"
-window_data_file <- "~/Desktop/twisst_analyses/REORDERED_WINDOWS_10kbtrees.tsv.gz"
-
-twisst_data <- import.twisst(weights_files=weights_file,
-                             window_data_files=window_data_file)
-
-
-#get list of scaffold names
-scaflist <- names(twisst_data$lengths)
-
-
-#keep only top 6 topologies
-main_topologies <- order(twisst_data$weights_overall_mean, decreasing=T)[1:6]
-twisst_data <- subset.twisst.by.topos(twisst_data, main_topologies)
-
-
-setwd('~/Desktop/twisst_plotting_output_NCRD/')
-
-
-#loop to generate twisst plots for each scaffold
-for (i in 1:length(scaflist)){
-  #generate subset data
-  twisst_subdata <- subset.twisst.by.regions(twisst_data, scaflist[i])
-  
-  #start pdf plot
-  pdf(paste(scaflist[i], "twisst_plot_NCRD.pdf", sep = '_'))
-  
-  #plot summary
-  plot.twisst.summary(twisst_subdata, lwd=3, cex=0.7)
-  
-  #generate and plot smoothed data
-  twisst_data_smooth <- smooth.twisst(twisst_subdata, span_bp = 2000000, spacing = 1000)
-  plot.twisst(twisst_data_smooth, mode=2) #mode 2 overlays polygons, mode 3 would stack them
-  plot.twisst(twisst_data_smooth, mode=3) #mode 2 overlays polygons, mode 3 would stack them
-  dev.off()
-}
-########################################
-
-
-
-

@@ -1,5 +1,6 @@
 #load in data
 setwd('~/Desktop/')
+library(tidyverse)
 
 genomefile <- read.table("~/project storage/project_comparative_genome/genomes/davidsonii/annot_Pdavidsonii_1mb_chromo_info.txt")
 colnames(genomefile) <- c("chr", "start", "end")
@@ -86,9 +87,8 @@ write.csv(treename_matrix, "RFdistance_10kbtrees_astralCDStree.csv", row.names =
 #Plotting RF distance in 10kb stretches along scaffold
 #and overlay that onto plot of genic content
 ##################################################
-
 #read in RF values and annofile info
-RFfile <- read.csv("~/project storage/project_dasanthera_novaseq/results/treemetrics/RFdistance_10kbtrees_astralCDStree.csv")
+RFfile <- read.csv("~/project storage/project_dasanthera_novaseq/results/treemetrics/RFdistance_10kbtrees_astral10kbtree.csv")
 colnames(RFfile)[3] <- "chromosome"
 
 
@@ -115,7 +115,7 @@ RFfile <- RFfile %>%
   ungroup()
 
 
-pdf("RFdist_genic_content_astralCDStree.pdf")
+pdf("RFdist_genic_content_astral10kbtree.pdf", width = 12, height = 5)
 ggplot() +
   geom_histogram(data = annofile, mapping = aes(x = midpoint, y = after_stat(ncount)),
                  binwidth = 1, alpha = 0.5) +
@@ -127,7 +127,11 @@ ggplot() +
   scale_y_continuous(name = "10kb window tree normalized Robinson-Foulds distance",
                      sec.axis = sec_axis(~., name = "proportional gene count")) +
   ggtitle("loess-smoothed normalized RF distance (line) and binned gene content (hist)") +
-  theme_bw()
+  theme_bw() +
+  theme(strip.text.x = element_text(size = 8))
 dev.off()
 
 #loess, lm, glm, gam
+
+
+

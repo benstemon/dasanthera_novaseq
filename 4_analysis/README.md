@@ -179,6 +179,9 @@ Finally, investigate targeted triplets of interest for sliding window introgress
 * For plotting output of this analysis and generating outfile for outlier windows, see, for example: [`plot_Dinvestigate_Dwindow_1000_500.R`](Dstats/plot_Dinvestigate_Dwindow_1000_500.R)
 
 
+This was redone with [`DSTATS_1.ARRAY_introtests.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests.sh) to align with TWISST testing. Results plotted with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R)
+
+
 
 
 #### Gene identities in significant outliers from D-window analyses
@@ -270,4 +273,8 @@ I noticed that this produces eigenvalues that don't look right (negative values)
 Using the 10kb gene trees, we ran TWISST. We focused on the NCR and NCRD clades for simplification. Plots were made by smoothing weightings in 2Mb increments.
 * See [`TWISST_1.run_twisst.sh`](twisst/TWISST_1.run_twisst.sh) for the shell script to run TWISST. This requires [`twisst_groupsfile.txt`](twisst/twisst_groupsfile.txt) to function.
 * See [`plot_twisst_output.R`](twisst/plot_twisst_output.R) for plotting TWISST output.
+
+
+We also ran twisst in targeted triplets to compare introgression hypotheses based on results from the fbranch analysis. The bash script to run these tests can be found here: [`TWISST_1.run_twisst_popspecific_v2.sh`](twisst_popspecific_v2/TWISST_1.run_twisst_popspecific_v2.sh), and plotting for these tests can be found here: [`plot_twisst_popspecific_v2.R`](twisst_popspecific_v2/plot_twisst_popspecific_v2.R)
+
 
