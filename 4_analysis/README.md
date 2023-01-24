@@ -158,6 +158,8 @@ The concatenated ML species tree is estimated in IQtree. I specified the GTR+I+R
 Plotting normalized RF distance of 10kb sliding window trees compared to the species tree. This was plotted along with genic content to visualize whether there is a relationship between RF distance and genic content along scaffolds. For the script to calculate RF distance and plot results, see [`plot_RF_x_genecontent.R`](treemetrics/plot_RF_x_genecontent.R)
 
 
+#### Concordance factors
+Estimated site concordance factors and gene concordance factors in IQtree. See treemetrics/TREEMETRICS_1.run-gene-concordance-factors.sh. Prior to running for CDS, needed to filter out sites with fewer than 3 samples, using python script [`remove_fewsequence_CDS.py`](remove_fewsequence_CDS.py)
 
 
 
@@ -277,4 +279,10 @@ Using the 10kb gene trees, we ran TWISST. We focused on the NCR and NCRD clades 
 
 We also ran twisst in targeted triplets to compare introgression hypotheses based on results from the fbranch analysis. The bash script to run these tests can be found here: [`TWISST_1.run_twisst_popspecific_v2.sh`](twisst_popspecific_v2/TWISST_1.run_twisst_popspecific_v2.sh), and plotting for these tests can be found here: [`plot_twisst_popspecific_v2.R`](twisst_popspecific_v2/plot_twisst_popspecific_v2.R)
 
+
+
+
+### Miscellaneous
+To obtain information about gene content in sliding windows, see [`calculate_percentage_CDS.sh`](miscellaneous/calculate_percentage_CDS.sh). Using this script will require a .txt file with the names and sizes of each chromosome (see [`genomesize_scaffolds_davidsonii_1mb.txt`](miscellaneous/genomesize_scaffolds_davidsonii_1mb.txt)) and a .bed file with the genomic coordinates of CDS.
+* To enable use of the script as intended, it must be made executable with `chmod +x calculate_percentage_CDS.sh` and run with `./calculate_percentage_CDS.sh`
 

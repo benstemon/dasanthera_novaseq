@@ -1,0 +1,10 @@
+new	car	rup
+new	car	fru
+new	car	dav
+new	rup	fru
+new	rup	dav
+fru	dav	new
+car	rup	fru
+car	rup	dav
+fru	dav	car
+fru	dav	rup

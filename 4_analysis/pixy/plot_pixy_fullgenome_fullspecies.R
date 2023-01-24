@@ -108,8 +108,16 @@ gt = ggplot_gtable(ggplot_build(a))
 gt$widths[20] = grid::unit(3, "cm")
 gt$heights[c(8,10,12,14,16,18)] = grid::unit(3.5, "cm")
 grid.draw(gt)
-
 dev.off()
+
+
+#plot genome-wide values for fst in density plots
+t <- rbind(sub_intermorph, sub_intramorph)
+pdf("genome-wide_fst_10kb.pdf")
+ggplot(t, aes(x = avg_wc_fst)) +
+  geom_density(aes(group = inter, col = inter))
+dev.off()
+
 
 
 
@@ -237,9 +245,15 @@ gt = ggplot_gtable(ggplot_build(a))
 gt$widths[20] = grid::unit(3, "cm")
 gt$heights[c(8,10,12,14,16,18)] = grid::unit(3.5, "cm")
 grid.draw(gt)
-
 dev.off()
 
+
+#plot genome-wide values for dxy in density plots
+t <- rbind(sub_intermorph, sub_intramorph)
+pdf("genome-wide_dxy_10kb.pdf")
+ggplot(t, aes(x = avg_dxy)) +
+  geom_density(aes(group = inter, col = inter))
+dev.off()
 
 
 
@@ -390,8 +404,18 @@ gt = ggplot_gtable(ggplot_build(b))
 gt$widths[20] = grid::unit(3, "cm")
 gt$heights[c(8,10,12,14)] = grid::unit(3.5, "cm")
 grid.draw(gt)
-
 dev.off()
+
+
+
+#plot genome-wide values for fst in density plots
+t <- rbind(sub_intermorph, sub_intramorph)
+pdf("genome-wide_fst_50kb.pdf")
+ggplot(t, aes(x = avg_wc_fst)) +
+  geom_density(aes(group = inter, col = inter))
+dev.off()
+
+
 
 ############################################################
 gtable_show_layout(gt)
@@ -519,7 +543,14 @@ gt = ggplot_gtable(ggplot_build(b))
 gt$widths[20] = grid::unit(3, "cm")
 gt$heights[c(8,10,12,14)] = grid::unit(3.5, "cm")
 grid.draw(gt)
+dev.off()
 
+
+#plot genome-wide values for dxy in density plots
+t <- rbind(sub_intermorph, sub_intramorph)
+pdf("genome-wide_dxy_50kb.pdf")
+ggplot(t, aes(x = avg_dxy)) +
+  geom_density(aes(group = inter, col = inter))
 dev.off()
 
 
