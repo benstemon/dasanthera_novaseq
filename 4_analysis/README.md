@@ -283,6 +283,16 @@ We also ran twisst in targeted triplets to compare introgression hypotheses base
 
 
 ### Miscellaneous
+This also falls under the Dstats category, but see the script [`generate_dstat_genic_plotfiles.sh`](miscellaneous/generate_dstat_genic_plotfiles.sh) to turn the output from Dinvestigate into a plottable format that includes information about the genic content in that region of the genome. Use of this script requires a the Dinvestigate output file and a .bed file with CDS coordinates (or other genomic intervals of interest). Use of the script is as follows:
+```shell
+chmod +x generate_dstat_genic_plotfiles.sh
+
+./generate_dstat_genic_plotfiles.sh -d dstat_file.txt -c CDS_regions.bed -o outfile.bed
+
+```
+
+
+
 To obtain information about gene content in sliding windows, see [`calculate_percentage_CDS.sh`](miscellaneous/calculate_percentage_CDS.sh). Using this script will require a .txt file with the names and sizes of each chromosome (see [`genomesize_scaffolds_davidsonii_1mb.txt`](miscellaneous/genomesize_scaffolds_davidsonii_1mb.txt)) and a .bed file with the genomic coordinates of CDS.
 * To enable use of the script as intended, it must be made executable with `chmod +x calculate_percentage_CDS.sh` and run with `./calculate_percentage_CDS.sh`
 
