@@ -6,4 +6,7 @@
 ### [Variant calling, .vcf filtering, and generation of analysis files (.vcfs, multiple sequence alignments, etc.)](3_variant_calling_and_outfile_generation)
 
 ### [Analysis](4_analysis/)
-* Currently in progress! As a result the scripts may be a bit unorganized still, as methodology and organization is still in flux.
+* 2/14/23 update: While this directory is still somewhat disorganized, the analyses therein are more or less complete. Will work to clean up code and organization, but these should be more or less safe to use.
+
+### [Genesearch](5_genesearch/)
+* Currently very much preliminary data analysis. Code and logic for identifying genes of interest in the genome and more thoroughly exploring genomic intervals/regions of interest.

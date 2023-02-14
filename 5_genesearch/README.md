@@ -1,6 +1,6 @@
 ## Gene Search
 
-### Generate focal gene sets foor further analysis
+### Generate focal gene sets for further analysis
 
 Workflow is to:
 1. construct ABP genes search set (genes of interest from genbank)
@@ -71,9 +71,57 @@ done
 
 #### 
 
+#### Phylogenetic relationships in specific genomic regions
+The first genomic region of interest is the first ~7 Mb on scaffold 2685. This region appears strongly discordant and harbors some interesting genes, including F3'H. It includes mRNA12393-mRNA12412
+
+Estimate gene trees for concatenated CDS in the region:
+1. Pull genes in the first 6MB of scaffold 2685 (f3pH_region_first6mb.bed)
+2. use gffread to extract CDS for each individual -> use emboss to union fasta files
+```
+conda activate mapping_etc
+
+for i in individual_fullgenome_fastas/*.fa;
+do
+    basename="${i##*/}"
+    specname="${basename/consensus_fullgenome_bws_/}"
+    
+    gffread -x- -C -M -K -Y -E --sort-alpha -g $i REGION_f3ph_first6mb.bed | union -filter > f3ph_6mb/$specname.f3ph_6mb.fa
+done
+
+```
+3. replace names of the fasta files and concatenate
+```
+cd f3ph_6mb/
+
+for i in *.fa;
+do
+    sed -i "1s/.*/>$i/" $i
+done
+
+#concatenate and remove excess files
+cat *.fa > combined_f3ph_6mb.fa
+rm *.fa.f3ph*
+
+#convert to single-line fasta
+awk '/^>/ { print (NR==1 ? "" : RS) $0; next } { printf "%s", $0 } END { printf RS }' combined_f3ph_6mb.fa > nobreaks.combined_f3ph_6mb.fa
+```
+4. use IQtree to estimate tree from these files
+```
+iqtree -s nobreaks.combined_f3ph_6mb.fa --seqtype DNA -m MFP
+```
+
+5. cleanup
+```
+mv REGION_f3ph_first6mb.bed f3ph_6mb
+mv f3ph_6mb /work/bs66/dasanthera_novaseq/genesearch
+```
 
 
 
-
-
+##### pulling useful information about gene trees from IQtree output
+I was looking at the CDS gene trees from the 6mb region containing f3'h, to see if that would give me anything interesting. Most of these trees had very short branches and appears to have little information content. I wanted to quantify this, so I wrote a python script to summarize information content found in the .iqtree files.
+* See [`parse_iqtree_files.py`](parse_iqtree_files.py) to pull information about number of nucleotides, invariant sites, and parsimony-informative sites for .iqtree files in a given directory. Usage:
+```
+python parse_iqtree_files.py --directory directory_with_.iqtree_files --outfile genetree_information.tsv
+```
 

@@ -175,7 +175,7 @@ dev.off()
 setwd("~/Desktop/twisst_popspecific_v2/")
 
 #call in the twisst plotting functions provided by devs
-source("~/project storage/project_dasanthera_novaseq/results/twisst/source_plot_twisst.R")
+source("~/project storage/project_dasanthera_novaseq/source_plot_twisst.R")
 
 
 #make list of comparison tests and basename for files to read in
