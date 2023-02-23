@@ -251,12 +251,12 @@ I noticed that this produces eigenvalues that don't look right (negative values)
 
 
 ### TWISST
-We ran TWISST using the 10kb sliding window trees as input. There are two main TWISST modules that we generated.
+We ran TWISST using the 10kb sliding window trees as input. There are two main TWISST modules that we generated. 
 
 #### TWISST fullspecies
-This module employed all samples except for P. lyallii. We ran twisst for every possible combination of three taxa (rooted with P. montanus -- 10 total tests).
+This module employed all samples except for P. lyallii. We ran twisst for every possible combination of three taxa (rooted with P. montanus -- 10 total tests). We then smoothed topology weights in 2Mb windows, spacing every 5kb, to produce smoothed topology weights. We then summarized TWISST results by creating two new metrics based on the smoothed topology weights, where topo1 is always the topology concordant with the species tree: (1) total discordance, which is the topology weight for the two topologies discordant from the species tree topology (w(topo2) + w(topo3)), and (2) discordance imbalance, which is the difference in topology weights of the two discordant topologies (abs(w(topo2)-w(topo3))). These were plotted in combination with genic fraction information.
 * See [`TWISST_1.run_twisst_fullspecies.sh`](twisst_fullspecies/TWISST_1.run_twisst_fullspecies.sh) for the batch script and [`twisst_fullspecies_groupsfile.txt`](twisst_fullspecies/twisst_fullspecies_groupsfile.txt) for the groupsfile as input for twisst fullspecies analyses.
-We then smoothed topology weights in 2Mb windows, spacing every 5kb, to produce smoothed topology weights. We then summarized TWISST results by creating two new metrics based on the smoothed topology weights, where topo1 is always the topology concordant with the species tree: (1) total discordance, which is the topology weight for the two topologies discordant from the species tree topology (w(topo2) + w(topo3)), and (2) discordance imbalance, which is the difference in topology weights of the two discordant topologies (abs(w(topo2)-w(topo3))). These were plotted in combination with genic fraction information.
+
 * See [`plot_twisst_fullspecies.R`](twisst_fullspecies/plot_twisst_fullspecies.R) for plotting script.
 
 #### TWISST popspecific
