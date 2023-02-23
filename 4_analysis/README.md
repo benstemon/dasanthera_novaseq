@@ -159,7 +159,7 @@ Plotting normalized RF distance of 10kb sliding window trees compared to the spe
 
 
 #### Concordance factors
-Estimated site concordance factors and gene concordance factors in IQtree. See treemetrics/TREEMETRICS_1.run-gene-concordance-factors.sh. Prior to running for CDS, needed to filter out sites with fewer than 3 samples, using python script [`remove_fewsequence_CDS.py`](remove_fewsequence_CDS.py)
+Estimated site concordance factors and gene concordance factors in IQtree. See [`TREEMETRICS_1.run-gene-concordance-factors.sh`](treemetrics/TREEMETRICS_1.run-gene-concordance-factors.sh). Prior to running for CDS, needed to filter out sites with fewer than 3 samples, using python script [`remove_fewsequence_CDS.py`](remove_fewsequence_CDS.py)
 
 
 
@@ -216,37 +216,16 @@ Finally, see [`Dwindow_BLASTX_CDS.sh`](Dwindow_outlier_analysis/Dwindow_BLASTX_C
 
 
 
-
-
-
-### pixy CDS
-
-#### pixy NCR triplets
-We obtained unbiased estimates of Dxy from pixy between species in the NCR clade (newberryi, cardwellii, rupicola) to assess how inferred relationships differ depending on the gene of interest. First, we compared Dxy between P. rupicola, P. newberryi, and P. cardwellii in all CDS regions. CDS were required to have > 100 sites and missing count/count comparisons was required to be < 50%. We generated plots for scenarios grouping all individuals by species (fullspecies) as well as specific individual-by-individual comparisons. As expected, Dxy in CDS regions between P. newberryi and P. cardwellii were on average lower than average Dxy between P. newberryi and P. rupicola, and between P. rupicola and P. cardwellii. This pattern held whether we grouped individuals by species (fullspecies) or whether we made individual-by-individual comparisons (popspecific).
-* For pixy analyses, see [`PIXY_1a.CDS_NCR_fullspecies.sh`](pixy/pixy_CDS/PIXY_1a.CDS_NCR_fullspecies.sh) and [`popfile_1a.NCR_fullspecies.txt`](pixy/pixy_CDS/popfile_1a.NCR_fullspecies.txt)
-* For plotting, see [`plot_pixy_CDS_dxy.R`](pixy/pixy_CDS/plot_pixy_CDS_dxy.R)
-
-#### pixy allpops
-We also obtained estimates of Dxy from all possible samples. This data set is redundant with pixy NCR, so at some point I should reconcile that.
-* See [`PIXY_allpops_1.CDS_NCR_popspecific.sh`](pixy/pixy_CDS_allpops/PIXY_allpops_1.CDS_NCR_popspecific.sh) for the bash script and [`popfile_allpops.NCR_popspecific.txt`](pixy/pixy_CDS_allpops/popfile_allpops.NCR_popspecific.txt) for the popfile.
-
-
-
-
 ### pixy fullgenome
-#### fullspecies 10kb
+#### fullspecies (10kb and 50kb)
 For this analysis, we estimated pi, dxy, and fst genome-wide for all cross-species comparisons. These were estimated in 10kb and 50kb stretches. Species were assigned to their taxonomic affinity. "dav118" was assigned to P. fruticosus.
 
-The goal of this analysis is to look for evidence of selection, namely, regions with low pi and high dxy/fst between different "morphs" (in this case, different pollination syndromes).
+The goal of these analyses are to visualize how these diversity and differentiation metrics vary across the genome, and whether there are shared patterns across species and/or with particular genomic features.
 
-
-
-### geodist_gendist
-
-We examined the relationship between genome-wide dxy and geographic distance amongst all possible population comparisons. Plots were made on a per-species basis. We also used these dxy comparisons to make MDS plots (multidimensional scaling).
-* See [`geodist_gendist_MDS_plotting.R`](geodist_gendist_MDS/geodist_gendist_MDS_plotting.R) for the R script to filter and plot data, and [`dasanthera_coords.txt`](geodist_gendist_MDS/dasanthera_coords.txt) for coordinate data for each population.
-
-
+* See [`PIXY_fullgenome_fullspecies_1.10kb.sh`](pixy/pixy_fullgenome_fullspecies_10kb) and [`PIXY_fullgenome_fullspecies_1.50kb.sh`](pixy/pixy_fullgenome_fullspecies_50kb) for batch scripts used. popfiles for each analysis are within their respective directories.
+* See [`plot_pixy_fullgenome_fullspecies.R`](pixy/plot_pixy_fullgenome_fullspecies.R) for plotting. Several plots were made, including:
+	- genic fraction vs. average dxy, pi, and fst
+	- average pi, dxy, and fst plotted along scaffolds for each species/interaction
 
 
 
@@ -284,11 +263,11 @@ We also ran twisst in targeted triplets to compare introgression hypotheses base
 
 ### Miscellaneous
 This also falls under the Dstats category, but see the script [`generate_dstat_genic_plotfiles.sh`](miscellaneous/generate_dstat_genic_plotfiles.sh) to turn the output from Dinvestigate into a plottable format that includes information about the genic content in that region of the genome. Use of this script requires a the Dinvestigate output file and a .bed file with CDS coordinates (or other genomic intervals of interest). Use of the script is as follows:
+
 ```shell
 chmod +x generate_dstat_genic_plotfiles.sh
 
 ./generate_dstat_genic_plotfiles.sh -d dstat_file.txt -c CDS_regions.bed -o outfile.bed
-
 ```
 
 
@@ -296,3 +275,9 @@ chmod +x generate_dstat_genic_plotfiles.sh
 To obtain information about gene content in sliding windows, see [`calculate_percentage_CDS.sh`](miscellaneous/calculate_percentage_CDS.sh). Using this script will require a .txt file with the names and sizes of each chromosome (see [`genomesize_scaffolds_davidsonii_1mb.txt`](miscellaneous/genomesize_scaffolds_davidsonii_1mb.txt)) and a .bed file with the genomic coordinates of CDS.
 * To enable use of the script as intended, it must be made executable with `chmod +x calculate_percentage_CDS.sh` and run with `./calculate_percentage_CDS.sh`
 
+
+
+
+### Gene Density plots
+* plotted gene density vs. RF distance
+* plotted gene density vs. pixy
