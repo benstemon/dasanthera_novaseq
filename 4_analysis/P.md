@@ -251,12 +251,17 @@ I noticed that this produces eigenvalues that don't look right (negative values)
 
 
 ### TWISST
-Using the 10kb gene trees, we ran TWISST. We focused on the NCR and NCRD clades for simplification. Plots were made by smoothing weightings in 2Mb increments.
-* See [`TWISST_1.run_twisst.sh`](twisst/TWISST_1.run_twisst.sh) for the shell script to run TWISST. This requires [`twisst_groupsfile.txt`](twisst/twisst_groupsfile.txt) to function.
-* See [`plot_twisst_output.R`](twisst/plot_twisst_output.R) for plotting TWISST output.
+We ran TWISST using the 10kb sliding window trees as input. There are two main TWISST modules that we generated.
 
+#### TWISST fullspecies
+This module employed all samples except for P. lyallii. We ran twisst for every possible combination of three taxa (rooted with P. montanus -- 10 total tests).
+* See [`TWISST_1.run_twisst_fullspecies.sh`](twisst_fullspecies/TWISST_1.run_twisst_fullspecies.sh) for the batch script and [`twisst_fullspecies_groupsfile.txt`](twisst_fullspecies/twisst_fullspecies_groupsfile.txt) for the groupsfile as input for twisst fullspecies analyses.
+We then smoothed topology weights in 2Mb windows, spacing every 5kb, to produce smoothed topology weights. We then summarized TWISST results by creating two new metrics based on the smoothed topology weights, where topo1 is always the topology concordant with the species tree: (1) total discordance, which is the topology weight for the two topologies discordant from the species tree topology (w(topo2) + w(topo3)), and (2) discordance imbalance, which is the difference in topology weights of the two discordant topologies (abs(w(topo2)-w(topo3))). These were plotted in combination with genic fraction information.
+* See [`plot_twisst_fullspecies.R`](twisst_fullspecies/plot_twisst_fullspecies.R) for plotting script.
 
-We also ran twisst in targeted triplets to compare introgression hypotheses based on results from the fbranch analysis. The bash script to run these tests can be found here: [`TWISST_1.run_twisst_popspecific_v2.sh`](twisst_popspecific_v2/TWISST_1.run_twisst_popspecific_v2.sh), and plotting for these tests can be found here: [`plot_twisst_popspecific_v2.R`](twisst_popspecific_v2/plot_twisst_popspecific_v2.R)
+#### TWISST popspecific
+This module examined more intensively some of the focal introgressed individuals identified from the f-branch statistics. Each focal introgressed individual (P2) has an introgression partner (P3), and is part of a broader species identification (P2.species). For each P2 + P3 combination targeted, we ran two tests of rooted triplets: (1) P2, P3, and sister taxon (sister to either P2 or P3), and (2) P2.species (non-introgressed), P3, and sister taxon. This way, differences in topology weights between test 1 and 2 can be attributed directly to the evolutionary history unique to P2. These were then plotted using the functions made available by the TWISST developers, smoothing values over 2Mb in 5kb increments.
+* See [`TWISST_1.run_twisst_popspecific_v2.sh`](twisst_popspecific_v2/TWISST_1.run_twisst_popspecific_v2.sh) for the batch script, and [`plot_twisst_popspecific_v2.R`](twisst_popspecific_v2/plot_twisst_popspecific_v2.R) for the plotting script.
 
 
 
