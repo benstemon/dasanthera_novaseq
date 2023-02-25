@@ -17,3 +17,10 @@ Obtained estimates of dxy from all possible samples, but in CDS regions.
 
 We examined the relationship between genome-wide dxy and geographic distance amongst all possible population comparisons. Plots were made on a per-species basis. We also used these dxy comparisons to make MDS plots (multidimensional scaling).
 * See [`geodist_gendist_MDS_plotting.R`](geodist_gendist_MDS/geodist_gendist_MDS_plotting.R) for the R script to filter and plot data, and [`dasanthera_coords.txt`](geodist_gendist_MDS/dasanthera_coords.txt) for coordinate data for each population.
+
+
+### Old Dinvestigate scripts
+Finally, investigate targeted triplets of interest for sliding window introgression metrics. I tested a few different window sizes. As an example:
+* For conducting this analysis, see [`DSTATS_3a.dsuite_Dinvestigate_1000_500.sh.sh`](Dstats/DSTATS_3a.dsuite_Dinvestigate_1000_500.sh). Will also need [`popset_dtrios.txt`](Dstats/popset_dtrios.txt)
+* For plotting output of this analysis and generating outfile for outlier windows, see, for example: [`plot_Dinvestigate_Dwindow_1000_500.R`](Dstats/plot_Dinvestigate_Dwindow_1000_500.R)
+

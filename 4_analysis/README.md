@@ -165,28 +165,54 @@ Estimated site concordance factors and gene concordance factors in IQtree. See [
 
 
 
-### D-statistics and related metrics
-* Using Dsuite to calculate various metrics related to introgression
-* Using an input tree to additionally test for significance of D with respect to tree topology. Tree for input here is the MLE tree for concatenated species tree, rooted with P. montanus. P. lyalli has been removed from the tree, since we only need one outgroup and it complicates things slightly to keep it.
+### D-statistics
+We used Dsuite to calculate all introgression statistics, including f-branch tests and fdM. These were performed in three main groups of analyses.
 
+#### Dstats-fbranch (whole-genome signatures of introgression)
+First, perform Dsuite Dtrios to generate D statistics for all possible triplets of taxa. These tests do not include P. lyallii and use the Astral 10kb topology as the input species tree. Samples here were treated as individuals.
+* See [`DSTATS_1.ARRAY_dsuite_dtrios.sh`](Dstats_fbranch/DSTATS_1.ARRAY_dsuite_dtrios.sh) for this first batch script, as well as [`intree_dtrios.tre`](Dstats_fbranch/intree_dtrios.tre) for the input species tree and [`popset_dtrios.txt`](Dstats_fbranch/popset_dtrios.txt) for the population identification set.
 
-First. perform Dsuite dtrios to generate D statistics for all possible triplets. Include tree topology to generate tree.txt files, which are D metrics with triplets arranged as they are in the tree. This is done on a scaffold-by-scaffold basis.
-* See [`DSTATS_1.ARRAY_dsuite_dtrios.sh`](Dstats/DSTATS_1.ARRAY_dsuite_dtrios.sh)
-
-Next, combine Dtrios output for each scaffold into a genome-wide analysis. These first two scripts will also generate plots of significant f-branch results.
-* See [`DSTATS_2.combineDtrios.sh`](Dstats/DSTATS_2.combineDtrios.sh). Will also need [`intree_NOLYALLII_dtrios.tre`](Dstats/intree_NOLYALLII_dtrios.tre) and [`popset_dtrios.txt`](Dstats/popset_dtrios.txt)
-
-Finally, investigate targeted triplets of interest for sliding window introgression metrics. I tested a few different window sizes. As an example:
-* For conducting this analysis, see [`DSTATS_3a.dsuite_Dinvestigate_1000_500.sh.sh`](Dstats/DSTATS_3a.dsuite_Dinvestigate_1000_500.sh). Will also need [`popset_dtrios.txt`](Dstats/popset_dtrios.txt)
-* For plotting output of this analysis and generating outfile for outlier windows, see, for example: [`plot_Dinvestigate_Dwindow_1000_500.R`](Dstats/plot_Dinvestigate_Dwindow_1000_500.R)
-
-
-This was redone with [`DSTATS_1.ARRAY_introtests.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests.sh) to align with TWISST testing. Results plotted with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R)
+Next, combine Dtrios output for each scaffold into a genome-wide analysis. This will also produce an f-branch plot for the whole genome.
+* See [`DSTATS_2.combineDtrios.sh`](Dstats_fbranch/DSTATS_2.combineDtrios.sh)
 
 
 
+#### Dstats-fullspecies-sliding (signatures of introgression across genomic regions)
+We used Dsuite Dinvestigate to calculate introgression metrics in sliding windows across the genome. These scripts estimate D, fd, fdM, and Df in overlapping windows of 10kb SNPs, sliding every 2500 SNPs. Rather than as individuals, samples were assigned to species identity, including dav118 as P. fruticosus. P. lyallii was not included in these analyses, and P. montanus was used as the outgroup.
 
-#### Gene identities in significant outliers from D-window analyses
+We were also interested in the potential relationship that introgression metrics have with gene density. To explore this relationship, we calculated the proportion of coding sites for each of the 10kb SNP windows using a custom script and bedtools. See script [`generate_dstat_genic_plotfiles.sh`](miscellaneous/generate_dstat_genic_plotfiles.sh) for the script. It is used as follows:
+```bash
+# Input for the script includes:
+# -d : the d-statistics outfile produced from Dinvestigate
+# -c : a .bed file with CDS coordinates
+# -o : the name for the tab-separated output file
+
+
+bash generate_dstat_genic_plotfiles.sh -d dstat_infile.txt -c CDS.bed -o outfile.tsv
+
+# the script will generate a "plotting" file which can be used to compare Dinvestigate output with genic fraction.
+```
+
+Two versions of these analysees were conducted: one including all samples (except P. lyallii), and one also excluding fru106 (to see the effect removing this individual had on the relationship with genic fraction). We calculated these statistics for every possible rooted triplet of taxa (ten total rooted triplets), specifying relationships as inferred by the species tree.
+* For the full sample analysis, see [`DSTATS_fullspecies_1a.sliding_10kb.sh`](Dstats_fullspecies_sliding/DSTATS_fullspecies_1a.sliding_10kb.sh) for the batch script and [`popset_fullspecies.txt`](Dstats_fullspecies_sliding/popset_fullspecies.txt) for the population set.
+* For the analysis excluding fru106, see [`DSTATS_fullspecies_1b_nofru106.sliding_10kb.sh`](Dstats_fullspecies_sliding/DSTATS_fullspecies_1b_nofru106.sliding_10kb.sh) for the batch script and [`popset_fullspecies_nofru106.txt`](Dstats_fullspecies_sliding/popset_fullspecies_nofru106.txt) for the population set.
+* Both analyses also implement the trioset [`trioset_fullspecies.txt`](Dstats_fullspecies_sliding/trioset_fullspecies.txt) for specifying each of the rooted triplets, and [`plot_Dstats_fullspecies_sliding_genic.R`](Dstats_fullspecies_sliding/plot_Dstats_fullspecies_sliding_genic.R) for plotting.
+
+
+#### Dstats-introtests
+We again used Dsuite Dinvestigate to estimate D, Df, fD, and  fdM. This time, however, we generated tests to mirror those performed in the twisst-popspecific analyses. We thus have four popsets and four triosets in [`Dstats_introtests`](Dstats_introtests) that correspond to the four focal TWISST tests: (1) dav-new, (2) dav116, (3) rup86, and (4) rup101. We estimated these D statistics at four different scales:
+* 10k SNP windows, sliding every 2500 SNPs [`DSTATS_1.ARRAY_introtests.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests.sh)
+* 5k SNP windows, sliding every 1250 SNPs [`DSTATS_1.ARRAY_introtests_5kb.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests_5kb.sh)
+* 1k SNP windows, sliding every 250 SNPs [`DSTATS_1.ARRAY_introtests_1kb.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests_1kb.sh)
+* 500 SNP windows, sliding every 125 SNPs [`DSTATS_1.ARRAY_introtests_500bp.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests_500bp.sh)
+
+We also calculated the genic fraction for each of the windows produced by these analyses, as described above (ACTUALLY, NOT YET). Finally, plots were made with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R)
+
+
+
+
+
+### Gene identities in significant outliers from D-window analyses
 
 Using output from sliding window D analyses, identify the CDS in outlier windows and their function. First, use bedtools intersect to identify maker CDS in these windows.
 
