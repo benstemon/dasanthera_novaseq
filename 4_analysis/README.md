@@ -188,7 +188,9 @@ We were also interested in the potential relationship that introgression metrics
 # -o : the name for the tab-separated output file
 
 
-bash generate_dstat_genic_plotfiles.sh -d dstat_infile.txt -c CDS.bed -o outfile.tsv
+chmod +x generate_dstat_genic_plotfiles.sh
+
+./generate_dstat_genic_plotfiles.sh -d dstat_file.txt -c CDS_regions.bed -o outfile.bed
 
 # the script will generate a "plotting" file which can be used to compare Dinvestigate output with genic fraction.
 ```
