@@ -29,7 +29,7 @@ outdir="/work/bs66/dasanthera_novaseq/analysis/treemetrics/concordance_factors"
 
 #run IQtree gene concordance factors
 cd $outdir
-iqtree -t $reftree_10kb --gcf $sourcetrees_10kb --cf-verbose --scf 100 -p $sourcealignments_10kb --df-tree --prefix 10kbsource_10kbref -T 4
+iqtree -t $reftree_10kb --gcf $sourcetrees_10kb --cf-verbose --scf 100 -p $sourcealignments_10kb --df-tree --prefix 10kbsource_10kbref -T 4 --seqtype DNA
 
-iqtree -t $reftree_CDS --gcf $sourcetrees_CDS --cf-verbose --scf 100 -p $sourcealignments_CDS --df-tree --prefix CDSsource_CDSref -T 4
+iqtree -t $reftree_CDS --gcf $sourcetrees_CDS --cf-verbose --scf 100 -p $sourcealignments_CDS --df-tree --prefix CDSsource_CDSref -T 4 --seqtype DNA
 

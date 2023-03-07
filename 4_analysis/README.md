@@ -159,7 +159,11 @@ Plotting normalized RF distance of 10kb sliding window trees compared to the spe
 
 
 #### Concordance factors
-Estimated site concordance factors and gene concordance factors in IQtree. See [`TREEMETRICS_1.run-gene-concordance-factors.sh`](treemetrics/TREEMETRICS_1.run-gene-concordance-factors.sh). Prior to running for CDS, needed to filter out sites with fewer than 3 samples, using python script [`remove_fewsequence_CDS.py`](remove_fewsequence_CDS.py)
+Estimated site concordance factors and gene concordance factors in IQtree. See [`TREEMETRICS_1.calculate_concordance_factors.sh`](treemetrics/TREEMETRICS_1.calculate_concordance_factors.sh). Prior to running for CDS, needed to filter out sites with fewer than 3 samples, using python script [`remove_fewsequence_CDS.py`](remove_fewsequence_CDS.py)
+
+From this, used the .log file to match locus IDs (10kb trees) to their site concordance factors score. First, I copied the output from the log file containing identification into a new .txt file, then used `grep -v '^WARNING' input.txt > 10kbsource_cf_site_ids.txt` to generate an output text file with only this information.
+
+* This information, was plotted (in same script as plots for TWISST internal branch plots) with [`plot_twisst_IB-test_and_CFs_IB.R`](twisst_internal_branches/plot_twisst_IB-test_and_CFs_IB.R)
 
 
 
@@ -195,13 +199,13 @@ chmod +x generate_dstat_genic_plotfiles.sh
 # the script will generate a "plotting" file which can be used to compare Dinvestigate output with genic fraction.
 ```
 
-Two versions of these analysees were conducted: one including all samples (except P. lyallii), and one also excluding fru106 (to see the effect removing this individual had on the relationship with genic fraction). We calculated these statistics for every possible rooted triplet of taxa (ten total rooted triplets), specifying relationships as inferred by the species tree.
+Two versions of these analyses were conducted: one including all samples (except P. lyallii), and one also excluding fru106 (to see the effect removing this individual had on the relationship with genic fraction). We calculated these statistics for every possible rooted triplet of taxa (ten total rooted triplets), specifying relationships as inferred by the species tree.
 * For the full sample analysis, see [`DSTATS_fullspecies_1a.sliding_10kb.sh`](Dstats_fullspecies_sliding/DSTATS_fullspecies_1a.sliding_10kb.sh) for the batch script and [`popset_fullspecies.txt`](Dstats_fullspecies_sliding/popset_fullspecies.txt) for the population set.
 * For the analysis excluding fru106, see [`DSTATS_fullspecies_1b_nofru106.sliding_10kb.sh`](Dstats_fullspecies_sliding/DSTATS_fullspecies_1b_nofru106.sliding_10kb.sh) for the batch script and [`popset_fullspecies_nofru106.txt`](Dstats_fullspecies_sliding/popset_fullspecies_nofru106.txt) for the population set.
 * Both analyses also implement the trioset [`trioset_fullspecies.txt`](Dstats_fullspecies_sliding/trioset_fullspecies.txt) for specifying each of the rooted triplets, and [`plot_Dstats_fullspecies_sliding_genic.R`](Dstats_fullspecies_sliding/plot_Dstats_fullspecies_sliding_genic.R) for plotting.
 
 
-#### Dstats-introtests
+#### Dstats-introtests (introgression across the genome for targeted rooted triplets)
 We again used Dsuite Dinvestigate to estimate D, Df, fD, and  fdM. This time, however, we generated tests to mirror those performed in the twisst-popspecific analyses. We thus have four popsets and four triosets in [`Dstats_introtests`](Dstats_introtests) that correspond to the four focal TWISST tests: (1) dav-new, (2) dav116, (3) rup86, and (4) rup101. We estimated these D statistics at four different scales:
 * 10k SNP windows, sliding every 2500 SNPs [`DSTATS_1.ARRAY_introtests.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests.sh)
 * 5k SNP windows, sliding every 1250 SNPs [`DSTATS_1.ARRAY_introtests_5kb.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests_5kb.sh)
@@ -279,7 +283,7 @@ I noticed that this produces eigenvalues that don't look right (negative values)
 
 
 ### TWISST
-We ran TWISST using the 10kb sliding window trees as input. There are two main TWISST modules that we generated. 
+We ran TWISST using the 10kb sliding window trees as input. There are three main TWISST modules that we generated. 
 
 #### TWISST fullspecies
 This module employed all samples except for P. lyallii. We ran twisst for every possible combination of three taxa (rooted with P. montanus -- 10 total tests). We then smoothed topology weights in 2Mb windows, spacing every 5kb, to produce smoothed topology weights. We then summarized TWISST results by creating two new metrics based on the smoothed topology weights, where topo1 is always the topology concordant with the species tree: (1) total discordance, which is the topology weight for the two topologies discordant from the species tree topology (w(topo2) + w(topo3)), and (2) discordance imbalance, which is the difference in topology weights of the two discordant topologies (abs(w(topo2)-w(topo3))). These were plotted in combination with genic fraction information.
@@ -292,6 +296,10 @@ This module examined more intensively some of the focal introgressed individuals
 * See [`TWISST_1.run_twisst_popspecific_v2.sh`](twisst_popspecific_v2/TWISST_1.run_twisst_popspecific_v2.sh) for the batch script, and [`plot_twisst_popspecific_v2.R`](twisst_popspecific_v2/plot_twisst_popspecific_v2.R) for the plotting script.
 
 
+#### TWISST internal branch test
+This last module considered all possible tree topologies consistent wth the three main internal branches of the species tree: 1: new+car+rup, 2: new+car, and 3: dav+fru. 
+* See [`groupsfile_IB-test.txt`](twisst_internal_branches/groupsfile_IB-test.txt) for the groupsfile, and [`TWISST_1.run_twisst_IB-test.sh`](twisst_internal_branches/TWISST_1.run_twisst_IB-test.sh) for the batch script to run these analyses.
+* We plotted the topology weights for each 5 taxon tree consistent with each of these three internal branches with [`plot_twisst_IB-test_and_CFs_IB.R`](twisst_internal_branches/plot_twisst_IB-test_and_CFs_IB.R). Note that this R script also includes code for plotting concordance factors for these same internal branches.
 
 
 ### Miscellaneous

@@ -88,11 +88,12 @@ window_data_file <- "REORDERED_WINDOWS_10kbtrees.tsv.gz"
 #make list of weightfiles
 weightfilelist <- list.files(pattern = "REORDERED_WEIGHTS")
 
+
+
+#USING SMOOTHED WEIGHTS:
 #parameters to tune:
 param_twisst_span = 2000000
 param_twisst_space = 5000
-
-
 
 #make df to store all the relevant data
 newdf <- data.frame()
@@ -138,8 +139,8 @@ filtered_newdf <- newdf %>%
   mutate(testname = str_remove(testname, "REORDERED_WEIGHTS_fullspecies_")) %>%
   mutate(testname = str_remove(testname, ".txt.gz"))
 
-#add the genic fraction file
-genicfractionfile <- read.delim("~/project storage/project_dasanthera_novaseq/results/miscellaneous/genicfraction_2mbwin_5kbslide.bed",
+#add the genic fraction file (currently 2mb 10kbslide windows)
+genicfractionfile <- read.delim("~/project storage/project_dasanthera_novaseq/results/miscellaneous/genicfraction_100kbwin_5kbslide.bed",
                                 header = F, sep = " ",
                                 col.names = c("chromosome", "pos", "end", "genic_fraction"))
 genicfractionfile <- genicfractionfile %>%
@@ -148,28 +149,119 @@ genicfractionfile <- genicfractionfile %>%
   mutate(chromosome = str_replace(chromosome, "scaffold", "scaf")) %>%
   filter(chromosome %in% scaflist)
 
-#full join these together and pivot
-finalplot <- full_join(filtered_newdf, genicfractionfile) %>%
+#full join these together and pivot -- for plotting everything together
+finalplot_long <- full_join(filtered_newdf, genicfractionfile) %>%
   select(-c(topo1, topo2, topo3)) %>%
   drop_na() %>%
   pivot_longer(data = .,
                cols = c("discordance_imbalance", "total_discordance", "genic_fraction"),
                names_to = c("metric"))
 
-#finalplot <- pivot_longer(data = finalplot,
-#                          cols = c("discordance_imbalance", "total_discordance", "genic_fraction"),
-#                          names_to = c("metric"))
+#make short plot as well
+finalplot_short <- full_join(filtered_newdf, genicfractionfile) %>%
+  select(-c(topo1, topo2, topo3)) %>%
+  drop_na()
 
 
+#plotting everything in one large plot
+#unsmoothed weights do not work here
 pdf("twisst_fullspecies_10triplets_2mbwin_5kbslide.pdf", height = 10, width = 15)
-ggplot(finalplot, aes(x = pos/1000000, y = abs(value))) +
+ggplot(finalplot_long, aes(x = pos/1000000, y = abs(value))) +
   geom_line(aes(col = metric)) +
   facet_grid(testname ~ chromosome,
              scales = "free_x", space = "free_x") +
+  theme_bw() +
   xlab("Position on scaffold (Mb)")
+dev.off()
+
+
+#short plot, change to geom_smooth for the genic_fraction
+pdf("twisst_fullspecies_10triplets_2mbwin_5kbslide_genic100kb-5kb.pdf", height = 10, width = 15)
+ggplot(finalplot_short, aes(x = pos/1000000, y = total_discordance)) +
+  geom_line(aes(y = total_discordance, col = "red")) +
+  geom_line(aes(y = discordance_imbalance, col = "blue")) +
+  geom_smooth(aes(y = genic_fraction, col = "green")) +
+  facet_grid(testname ~ chromosome,
+             scales = "free_x", space = "free_x") +
+  theme_bw() +
+  xlab("Position on scaffold (Mb)") +
+  ylim(0,1)
 dev.off()
 
 
 
 
 
+
+
+#USING UNSMOOTHED WEIGHTS
+#####
+newdf <- data.frame()
+#trying this on my own... without smoothing
+for (i in 1:length(weightfilelist)){
+  twisst_data <- import.twisst(weights_files = weightfilelist[i],
+                               window_data_files = window_data_file)
+  
+  #make new df, add extra information as needed
+  for(j in names(twisst_data$window_data)){
+    tmpdf <- as.data.frame(twisst_data$window_data[j])
+    tmpdf <- cbind(tmpdf, as.data.frame(twisst_data$weights[j]))
+    colnames(tmpdf)[1:6] = colnames(twisst_data$window_data[[1]])
+    colnames(tmpdf)[7:9] = colnames(twisst_data$weights[[1]])
+    tmpdf$testname <- weightfilelist[i]
+    
+    #bind to newdf
+    newdf <- rbind(newdf, tmpdf)
+  }
+}
+
+#filter out bad scafnames
+scaflist <- names(twisst_data$lengths)
+scaflist <- scaflist[!scaflist %in% 
+                       c("scaf_2531", "scaf_2446", "scaf_2151", "scaf_1085")]
+
+#now we have a large df with all the plotting information.
+#But we want to add our additional metrics for each window, for each test
+# 1. Discordance imbalance: weight(disc1) - weight(disc2)
+# 2. Total Discordance: weight(disc1) + weight(disc2)
+filtered_newdf <- newdf %>%
+  filter(scaffold %in% scaflist) %>%
+  rename(chromosome = scaffold) %>%
+  rename(pos = start) %>%
+  select(-end, -mid, -sites, -lnL) %>%
+  group_by(pos, chromosome, testname) %>%
+  mutate(discordance_imbalance = topo2-topo3) %>%
+  mutate(total_discordance = topo2+topo3) %>%
+  ungroup() %>%
+  mutate(testname = str_remove(testname, "REORDERED_WEIGHTS_fullspecies_")) %>%
+  mutate(testname = str_remove(testname, ".txt.gz"))
+
+
+#add the genic fraction file (currently 10kb windows)
+genicfractionfile <- read.delim("~/project storage/project_dasanthera_novaseq/results/miscellaneous/genicfraction_10kbwin_10kbslide.bed",
+                                header = F, sep = " ",
+                                col.names = c("chromosome", "pos", "end", "genic_fraction"))
+genicfractionfile <- genicfractionfile %>%
+  select(-end) %>%
+  mutate(pos = pos+1) %>%
+  mutate(chromosome = str_replace(chromosome, "scaffold", "scaf")) %>%
+  filter(chromosome %in% scaflist)
+
+
+#full join for regression genic fraction vs. discordance metrics
+finalplot_short <- full_join(filtered_newdf, genicfractionfile) %>%
+  select(-c(topo1, topo2, topo3)) %>%
+  drop_na() %>%
+  pivot_longer(data = .,
+               cols = c("discordance_imbalance", "total_discordance"),
+               names_to = c("metric"))
+
+
+
+
+#plotting regressions
+png("test2.png")
+ggplot(finalplot_short, aes(x = genic_fraction, y = abs(value))) +
+  geom_smooth() +
+  facet_grid(testname ~ metric)
+dev.off()

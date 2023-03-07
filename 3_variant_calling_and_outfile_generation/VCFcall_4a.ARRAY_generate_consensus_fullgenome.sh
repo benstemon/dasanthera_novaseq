@@ -66,9 +66,9 @@ scaffoldnames=$(awk '{print $1}' $faidxfile)
 
 #generate consensus sequence
 #--haplotype I outputs IUPAC ambiguity codes based on sample genotypes
-#--absent changes all sites not included in the vcf to "N" (rather than to consensus)
+#--absent changes all sites not included in the vcf to "-" (rather than to consensus)
 #--missing changes all ./. sites in vcf to "N"
-#--mark-del changes deletions to "-"
+#--mark-del changes deletions to "-" (since we didn't call indels this is irrelevant)
 #--regions specifies which scaffolds you want to consider (if you don't specify, it only does one scaffold)
 #--sample is specifying which sample to generate sequence for -- this is why array is used
 

@@ -38,6 +38,8 @@ plotting_pidata <- full_join(pidata, genicfractionfile) %>%
   mutate(pop = as.character(str_sub_all(pop, 3, 5))) %>%
   rowwise() %>%
   mutate(midpoint = ceiling(mean(c(window_pos_1, window_pos_2)))/1000000) %>%
+  mutate(comptype = case_when(pop %in% c("car", "dav", "fru") ~ "bird",
+                              pop %in% c("rup", "new") ~ "bee")) %>%
   ungroup()
 
 
@@ -56,6 +58,7 @@ plotting_dxy_fstdata <- full_join(dxydata, fstdata) %>%
   subset(avg_wc_fst >= 0) %>%
   mutate(pop1 = as.character(str_sub_all(pop1, 3, 5))) %>%
   mutate(pop2 = as.character(str_sub_all(pop2, 3, 5))) %>%
+  na.omit() %>%
   rowwise() %>%
   mutate(midpoint = ceiling(mean(c(window_pos_1, window_pos_2)))/1000000) %>%
   mutate(inter = paste(str_sort(c(pop1, pop2))[1], str_sort(c(pop1, pop2))[2], sep = '_')) %>%
@@ -67,6 +70,56 @@ plotting_dxy_fstdata <- full_join(dxydata, fstdata) %>%
 #make a long version too
 longplot_dxy_fst <- plotting_dxy_fstdata %>%
   pivot_longer(cols = c(avg_wc_fst, avg_dxy))
+
+
+#generate an output matrix for variance, overall values, etc.
+#for dxy, fst
+write.csv(plotting_dxy_fstdata %>%
+            group_by(inter) %>%
+            summarize(fst_mean = mean(avg_wc_fst),
+                      fst_min = min(avg_wc_fst),
+                      fst_max = max(avg_wc_fst),
+                      fst_sd = sd(avg_wc_fst),
+                      dxy_mean = mean(avg_dxy),
+                      dxy_min = min(avg_dxy),
+                      dxy_max = max(avg_dxy),
+                      dxy_sd = sd(avg_dxy)),
+          "sumstats_dxy-fst_50kb.csv")
+
+#write for pi
+write.csv(plotting_pidata %>%
+            group_by(pop) %>%
+            summarize(pi_mean = mean(avg_pi),
+                      pi_min = min(avg_pi),
+                      pi_max = max(avg_pi),
+                      pi_sd = sd(avg_pi)),
+          "sumstats_pi_50kb.csv")
+
+
+#generate boxplots for genome-wide metrics
+a <- ggplot(longplot_dxy_fst, aes(x = inter, y = value)) +
+  geom_boxplot(aes(col = comptype)) +
+  theme_bw() +
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank()) +
+  scale_color_manual(values = c("bee_bee" = "blue",
+                       "bee_bird" = "purple",
+                       "bird_bird" = "red")) + 
+  facet_grid(name ~.,
+             scales = c("free_y"))
+
+b <- ggplot(plotting_pidata, aes(x = pop, y = avg_pi)) +
+  geom_boxplot(aes(col = comptype)) +
+  scale_color_manual(values = c("bee" = "blue",
+                                "bird" = "red")) +
+  theme_bw()
+
+library(cowplot)
+pdf("BOXPLOT_genome-wide_50kb.pdf")
+plot_grid(a, b,
+          ncol = 1,
+          rel_heights = c(1, 0.66))
+dev.off()
 
 #generate plots:
 #1. pi vs. genic content vs genic content (per species average)
@@ -165,6 +218,8 @@ plotting_pidata <- full_join(pidata, genicfractionfile) %>%
   mutate(pop = as.character(str_sub_all(pop, 3, 5))) %>%
   rowwise() %>%
   mutate(midpoint = ceiling(mean(c(window_pos_1, window_pos_2)))/1000000) %>%
+  mutate(comptype = case_when(pop %in% c("car", "dav", "fru") ~ "bird",
+                              pop %in% c("rup", "new") ~ "bee")) %>%
   ungroup()
 
 
@@ -183,6 +238,7 @@ plotting_dxy_fstdata <- full_join(dxydata, fstdata) %>%
   subset(avg_wc_fst >= 0) %>%
   mutate(pop1 = as.character(str_sub_all(pop1, 3, 5))) %>%
   mutate(pop2 = as.character(str_sub_all(pop2, 3, 5))) %>%
+  na.omit() %>%
   rowwise() %>%
   mutate(midpoint = ceiling(mean(c(window_pos_1, window_pos_2)))/1000000) %>%
   mutate(inter = paste(str_sort(c(pop1, pop2))[1], str_sort(c(pop1, pop2))[2], sep = '_')) %>%
@@ -194,6 +250,56 @@ plotting_dxy_fstdata <- full_join(dxydata, fstdata) %>%
 #make a long version too
 longplot_dxy_fst <- plotting_dxy_fstdata %>%
   pivot_longer(cols = c(avg_wc_fst, avg_dxy))
+
+
+#generate an output matrix for variance, overall values, etc.
+#for dxy, fst
+write.csv(plotting_dxy_fstdata %>%
+            group_by(inter) %>%
+            summarize(fst_mean = mean(avg_wc_fst),
+                      fst_min = min(avg_wc_fst),
+                      fst_max = max(avg_wc_fst),
+                      fst_sd = sd(avg_wc_fst),
+                      dxy_mean = mean(avg_dxy),
+                      dxy_min = min(avg_dxy),
+                      dxy_max = max(avg_dxy),
+                      dxy_sd = sd(avg_dxy)),
+          "sumstats_dxy-fst_10kb.csv")
+
+#write for pi
+write.csv(plotting_pidata %>%
+            group_by(pop) %>%
+            summarize(pi_mean = mean(avg_pi),
+                      pi_min = min(avg_pi),
+                      pi_max = max(avg_pi),
+                      pi_sd = sd(avg_pi)),
+          "sumstats_pi_10kb.csv")
+
+
+#generate boxplots for genome-wide metrics
+a <- ggplot(longplot_dxy_fst, aes(x = inter, y = value)) +
+  geom_boxplot(aes(col = comptype)) +
+  theme_bw() +
+  theme(strip.background = element_blank(),
+        strip.text.y = element_blank()) +
+  scale_color_manual(values = c("bee_bee" = "blue",
+                                "bee_bird" = "purple",
+                                "bird_bird" = "red")) + 
+  facet_grid(name ~.,
+             scales = c("free_y"))
+
+b <- ggplot(plotting_pidata, aes(x = pop, y = avg_pi)) +
+  geom_boxplot(aes(col = comptype)) +
+  scale_color_manual(values = c("bee" = "blue",
+                                "bird" = "red")) +
+  theme_bw()
+
+library(cowplot)
+pdf("BOXPLOT_genome-wide_10kb.pdf")
+plot_grid(a, b,
+          ncol = 1,
+          rel_heights = c(1, 0.66))
+dev.off()
 
 #generate plots:
 #1. pi vs. genic content vs genic content (per species average)
