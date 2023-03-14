@@ -212,23 +212,30 @@ We again used Dsuite Dinvestigate to estimate D, Df, fD, and  fdM. This time, ho
 * 1k SNP windows, sliding every 250 SNPs [`DSTATS_1.ARRAY_introtests_1kb.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests_1kb.sh)
 * 500 SNP windows, sliding every 125 SNPs [`DSTATS_1.ARRAY_introtests_500bp.sh`](Dstats_introtests/DSTATS_1.ARRAY_introtests_500bp.sh)
 
+This script also identifies outlier windows. For each test, it identifies windows within the top 0.5% of fdM values.
+
 We also calculated the genic fraction for each of the windows produced by these analyses, as described above (ACTUALLY, NOT YET). Finally, plots were made with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R)
 
 
 
 
 
-### Gene identities in significant outliers from D-window analyses
+### Genomic features of significant windows from sliding introgression analyses
 
-Using output from sliding window D analyses, identify the CDS in outlier windows and their function. First, use bedtools intersect to identify maker CDS in these windows.
+
+Using output from sliding window D analyses, identify the CDS in outlier windows and their function. First, use bedtools intersect to identify maker CDS in these windows. Note: must first generate outlier windows in bed format with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R).
 
 ```shell
+cd /work/bs66/dasanthera_novaseq/analysis/fdm_outlier_analyses
+
 CDSannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes.bed"
-fullannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_genome.gff"
+
 
 #bedtools command
-bedtools intersect -a significant_windows_1000_500_z4.bed -b $CDSannot -wb > CDS-hits_only_1000_500_z4.bed
-
+bedtools intersect -a OUTLIERS/fdm_outliers_500bp.bed -b $CDSannot -wb > CDS_hits_500bp.bed
+bedtools intersect -a OUTLIERS/fdm_outliers_1kb.bed -b $CDSannot -wb > CDS_hits_1kb.bed
+bedtools intersect -a OUTLIERS/fdm_outliers_5kb.bed -b $CDSannot -wb > CDS_hits_5kb.bed
+bedtools intersect -a OUTLIERS/fdm_outliers_10000.bed -b $CDSannot -wb > CDS_hits_10kb.bed
 ```
 
 Next we will want to make a local blastx database against which we will blast the CDS. To do this we use the swissprot database. Set this up like so:
@@ -244,7 +251,7 @@ mkdir db_Swissprot
 mv swissprot* db_Swissprot/
 ```
 
-Finally, see [`Dwindow_BLASTX_CDS.sh`](Dwindow_outlier_analysis/Dwindow_BLASTX_CDS.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
+Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
 
 
 
@@ -302,6 +309,9 @@ This last module considered all possible tree topologies consistent wth the thre
 * We plotted the topology weights for each 5 taxon tree consistent with each of these three internal branches with [`plot_twisst_IB-test_and_CFs_IB.R`](twisst_internal_branches/plot_twisst_IB-test_and_CFs_IB.R). Note that this R script also includes code for plotting concordance factors for these same internal branches.
 
 
+
+
+
 ### Miscellaneous
 This also falls under the Dstats category, but see the script [`generate_dstat_genic_plotfiles.sh`](miscellaneous/generate_dstat_genic_plotfiles.sh) to turn the output from Dinvestigate into a plottable format that includes information about the genic content in that region of the genome. Use of this script requires a the Dinvestigate output file and a .bed file with CDS coordinates (or other genomic intervals of interest). Use of the script is as follows:
 
@@ -312,9 +322,9 @@ chmod +x generate_dstat_genic_plotfiles.sh
 ```
 
 
-
 To obtain information about gene content in sliding windows, see [`calculate_percentage_CDS.sh`](miscellaneous/calculate_percentage_CDS.sh). Using this script will require a .txt file with the names and sizes of each chromosome (see [`genomesize_scaffolds_davidsonii_1mb.txt`](miscellaneous/genomesize_scaffolds_davidsonii_1mb.txt)) and a .bed file with the genomic coordinates of CDS.
 * To enable use of the script as intended, it must be made executable with `chmod +x calculate_percentage_CDS.sh` and run with `./calculate_percentage_CDS.sh`
+
 
 
 

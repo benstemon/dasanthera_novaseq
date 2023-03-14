@@ -1,10 +1,10 @@
 library(tidyverse)
 #library(cowplot)
-setwd("~/project storage/project_dasanthera_novaseq/results/Dstats_fullspecies_sliding_results/")
+setwd("~/project storage/project_dasanthera_novaseq/results/Dstats_fullspecies_sliding_results/v1")
 
 
 
-#want to generate a plot of f_d o y axis, gene density on x axis.
+#want to generate a plot of f_d on y axis, gene density on x axis.
 #read in the file, which was prepared with shell script "generate_dstat_genic_plotfiles.sh"
 
 #Version 1, with fru106 included:
@@ -56,15 +56,16 @@ colscheme <- c("car_dav" = "#0000ff", "car_fru" = "#006400", "car_rup" = "#ff000
 
 
 #plot results
-pdf("fdm_vs_genic_fraction_v1.pdf")
+pdf("fdm_vs_genic_fraction_v1.pdf", height = 6, width = 15)
 ggplot(finaldata, aes(x = genic_fraction, y = absf_dM, group = speciescomp_fdM)) +
-  geom_point(size = 0.2, alpha = 0.1) +
-  geom_smooth(method = "lm", se = FALSE, col = "black", aes(group = comptype_fdM)) +
-  geom_smooth(method = "lm", se = T, aes(col = speciescomp_fdM)) +
+  geom_point(size = 0.6, alpha = 0.2) +
+  geom_smooth(method = "lm", se = T, aes(col = speciescomp_fdM), linewidth = 2) +
   facet_grid(~comptype_fdM) +
   ggtitle("f_dM vs. genic fraction") +
   scale_color_manual(values = colscheme) +
-  ylim(0,0.3)
+  ylim(0,0.25) +
+  theme_bw() +
+  theme(text = element_text(size = 24))
 dev.off()
 
 
