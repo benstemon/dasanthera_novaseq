@@ -220,8 +220,57 @@ We also calculated the genic fraction for each of the windows produced by these 
 
 
 
-### Genomic features of significant windows from sliding introgression analyses
+### Genes in fdM outliers and GO enrichment analysis
 
+#### PREP (If needed) -- consolidate functional annotations
+
+Now we would normally be able to link these to functional annotations and perform a GO enrichment analysis. However, the annotations that I have are not quite complete, in that the functional annotations haven't been linked to gene models. Because I don't have the original blast.output file, I need to restart this process. So I need to do a few preparation steps prior to moving forward with outlier analysis. Step one of prep is to blast gene model proteins against the uniprot database.
+
+* prep.1. First, make protein sequences of gene models with gffread
+```shell
+gffread -y FUNC-ANNO_davidsonii_protein.fasta -g annot_Pdavidsonii_genome.fasta annot_Pdavidsonii_genome.gff
+```
+
+
+* prep.2. Second, generate local blastp database against which to blast the protein sequences. Set this up like so:
+```shell
+#download the uniprot_sprot.fasta file from: https://www.uniprot.org/help/downloads#uniprotkblink
+
+module load blast
+makeblastdb -dbtype prot -in uniprot_sprot.fasta
+```
+
+
+* prep.3. Next, see [`1.assign_putative_protein_functions.sh`](fdm_outlier_analysis/1.assign_putative_protein_functions.sh) to perform the blastp, and then use maker scripts to add this information to the gff and fasta files. See [the maker website](http://weatherby.genetics.utah.edu/MAKER/wiki/index.php/MAKER_Tutorial_for_WGS_Assembly_and_Annotation_Winter_School_2018#Installation) for assistance with installing MAKER. I was able to get a local install working (not installed as a module on USC) with a bit of tinkering -- you will need to use the bootstrap method to install local::lib for the perl dependencies.
+
+
+* prep.4. Now we want to use interproscan to add protein domain information to the final annotations. There is a conda install available for interproscan with `conda install interproscan`. There is an additional step that needs to be completed for this install -- to acquire the databases. These are large databases that can take several hours to download. See [`2.install_interpro.sh`](fdm_outlier_analysis/2.install_interpro.sh) for a script to properly download and install these databases.
+
+
+* prep.5. Now we can run interproscan to identify GO terms in our GFF file. This can be done reasonably quickly on an interactive node:
+```
+conda activate interproscan
+
+
+#perform ipr lookup
+interproscan.sh -appl pfam -dp -f TSV -goterms -iprlookup -pa -t p -i FUNC-ANNO_davidsonii_protein.fasta -o output.iprscan
+
+
+#add maker to path
+makerpath="/work/bs66/software/maker/bin"
+export PATH=$PATH:$makerpath
+
+
+#add searchable tags to gene and mRNA features of GFF file
+ipr_update_gff annot_Pdavidsonii_genome_putative_function.gff output.iprscan > annot_Pdavidsonii_genome_FUNCTIONAL-INCLUDED.gff
+
+#generate GFF features representing only ipr domains
+iprscan2gff3 output.iprscan annot_Pdavidsonii_genome_FUNCTIONAL-INCLUDED.gff > annot_Pdavidsonii_genome_visible_iprscan_domains.gff
+```
+
+
+
+#### Identify gene models in fdM outlier windows
 
 Using output from sliding window D analyses, identify the CDS in outlier windows and their function. First, use bedtools intersect to identify maker CDS in these windows. Note: must first generate outlier windows in bed format with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R).
 
@@ -238,18 +287,11 @@ bedtools intersect -a OUTLIERS/fdm_outliers_5kb.bed -b $CDSannot -wb > CDS_hits_
 bedtools intersect -a OUTLIERS/fdm_outliers_10000.bed -b $CDSannot -wb > CDS_hits_10kb.bed
 ```
 
-Next we will want to make a local blastx database against which we will blast the CDS. To do this we use the swissprot database. Set this up like so:
 
-```shell
-wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/swissprot.gz
-gunzip swissprot.gz
 
-module load blast
-makeblastdb -dbtype prot -in swissprot
 
-mkdir db_Swissprot
-mv swissprot* db_Swissprot/
-```
+
+
 
 Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
 

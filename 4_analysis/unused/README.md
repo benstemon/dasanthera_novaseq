@@ -24,3 +24,17 @@ Finally, investigate targeted triplets of interest for sliding window introgress
 * For conducting this analysis, see [`DSTATS_3a.dsuite_Dinvestigate_1000_500.sh.sh`](Dstats/DSTATS_3a.dsuite_Dinvestigate_1000_500.sh). Will also need [`popset_dtrios.txt`](Dstats/popset_dtrios.txt)
 * For plotting output of this analysis and generating outfile for outlier windows, see, for example: [`plot_Dinvestigate_Dwindow_1000_500.R`](Dstats/plot_Dinvestigate_Dwindow_1000_500.R)
 
+
+
+
+### Original way to make uniprot db...
+```
+wget https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/swissprot.gz
+gunzip swissprot.gz
+
+module load blast
+makeblastdb -dbtype prot -in swissprot
+
+mkdir db_Swissprot
+mv swissprot* db_Swissprot/
+```
