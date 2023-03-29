@@ -270,30 +270,32 @@ iprscan2gff3 output.iprscan annot_Pdavidsonii_genome_FUNCTIONAL-INCLUDED.gff > a
 
 
 
-#### Identify gene models in fdM outlier windows
+#### Identify gene models in fdM outlier windows (topGO)
 
-Using output from sliding window D analyses, identify the CDS in outlier windows and their function. First, use bedtools intersect to identify maker CDS in these windows. Note: must first generate outlier windows in bed format with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R).
+We will use topGO to perform a GO enrichment analysis -- to see whether the genes we identified in our fdM outliers are enriched for particular GO terms compared to the genomic background.
+
+* outliers.1. First, we need to create an input for the genomic background or gene universe. See [`3.generate_topgo_background_from_gff3.py`](fdm_outlier_analysis/3.generate_topgo_background_from_gff3.py) for python script to generate this input from the gff file with functional annotations. Note that the gff I am using here is a simple grep-filtered version that only contains the scaffolds of interest (this is the most "fair" genomic background to use).
+Usage: `python generate_topgo_background_from_gff3.py -i annot_Pdavidsonii_1mb_genome_FUNCTIONAL-INCLUDED.gff -o topgo_background.tsv`
+
+
+* outliers.2. Next, identify the genes within the fdm outliers. The outlier windows were first identified with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R). These should have produced files starting with `"fdm_outliers"` that can then be used with bedtools and a .gff file to identify gene models contained within.
 
 ```shell
-cd /work/bs66/dasanthera_novaseq/analysis/fdm_outlier_analyses
-
+module load bedtools
 CDSannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes.bed"
 
-
-#bedtools command
-bedtools intersect -a OUTLIERS/fdm_outliers_500bp.bed -b $CDSannot -wb > CDS_hits_500bp.bed
-bedtools intersect -a OUTLIERS/fdm_outliers_1kb.bed -b $CDSannot -wb > CDS_hits_1kb.bed
-bedtools intersect -a OUTLIERS/fdm_outliers_5kb.bed -b $CDSannot -wb > CDS_hits_5kb.bed
-bedtools intersect -a OUTLIERS/fdm_outliers_10000.bed -b $CDSannot -wb > CDS_hits_10kb.bed
+for i in fdm_outliers*.bed;
+do
+    bedtools intersect -a $i -b $CDSannot -wb | awk -v OFS='\t' '{ count[$13]++ } END { for (word in count) print word}' > unique_mRNA_$i
+done
 ```
 
 
 
-
-
-
-
 Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
+
+
+
 
 
 
