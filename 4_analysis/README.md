@@ -179,6 +179,29 @@ First, perform Dsuite Dtrios to generate D statistics for all possible triplets 
 Next, combine Dtrios output for each scaffold into a genome-wide analysis. This will also produce an f-branch plot for the whole genome.
 * See [`DSTATS_2.combineDtrios.sh`](Dstats_fbranch/DSTATS_2.combineDtrios.sh)
 
+#### Dstats-CNRD
+We used Dsuite Dinvestigate to calculate introgression metrics in three specific focal tests: CRD, CND, and CNR, on the basis that comparisons among these triplets could be informative about the maintenance of species boundaries despite introgression and whether similar signatures of introgression could be identified between species that differ in primary pollinator (bird vs. bee). We estimated D statistics in overlapping windows of 10kb SNPs, sliding every 2500 SNPs. Samples were assigned to species identity. Given the signal of introgression between Cascades P. cardwellii and P. fruticosus, we removed that individual from the analysis and maintained it always as P1. P. montanus was used as the outgroup.
+* With this, we identified shared outliers of introgression between rup-dav and new-dav. Outliers were identified as the top 0.5% of fdm values. Shared outliers were identified as top fdM values for rup-dav that were located within 1Mb of an outlier point for new-dav.
+* I used the shared regions outfile generated to make a .bed file (`shared_regions.bed`) encompassing the genomic regions containing the shared outliers between bee-bird hybrid zone species. I then pulled genes within these regions using bedtools and custom python script [`filterbed.py`](Dstats_CNRD/filterbed.py):
+```
+CDSannot="/work/bs66/project_compare_genomes/functional-annotations-davidsonii/annot_Pdavidsonii_genome_FUNCTIONAL-INCLUDED.gff"
+
+bedtools intersect -a $CDSannot -b shared_regions.bed -bed > features_in_shared_regions.bed
+
+#then extract only gene features
+python filterbed.py 
+
+#I was curious about a few regions so I pulled them from the genome fastas (no CDS alignments made)
+for i in *.fixed.fa;
+do
+  samtools faidx $i mRNA3335 > mrna3335/${i}_mrna3335.fa
+  samtools faidx $i mRNA3336 > mrna3336/${i}_mrna3336.fa
+  samtools faidx $i mRNA3341 > mrna3341/${i}_mrna3341.fa
+  samtools faidx $i mRNA3342 > mrna3342/${i}_mrna3342.fa
+done
+
+```
+Note that I also did this for regions shared between all three triplets tested (including  car-new-rup). This results in essentially the same region of scaffold 2686, but an additional two genes.
 
 
 #### Dstats-fullspecies-sliding (signatures of introgression across genomic regions)

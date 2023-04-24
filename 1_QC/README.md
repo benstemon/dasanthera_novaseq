@@ -43,3 +43,7 @@ Moving forward with mapping, these unpaired reads can be mapped in the same way 
 * See [`QC_s3_fastp-filterqc-summarize.sh`](QC_s3_fastp-filterqc-summarize.sh)
 
 
+### Alternative QC pipeline
+All of the above steps can be performed in a single script, which is included.
+* See [`QC_parentpops.sh`](QC_parentpops.sh)
+

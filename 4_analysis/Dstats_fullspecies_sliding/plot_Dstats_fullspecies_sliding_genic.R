@@ -109,9 +109,6 @@ write.csv(rbind(lm_output, eco_output), file = "lm_output_v1.csv", row.names = F
 ############################################################
 
 
-
-
-
 #Version 2, with no fru106
 ############################################################
 
@@ -211,3 +208,4 @@ for (i in 1: length(ecomodels$comptype_fdM)){
 
 write.csv(rbind(lm_output, eco_output), file = "lm_output_nofru106.csv", row.names = F)
 ############################################################
+
