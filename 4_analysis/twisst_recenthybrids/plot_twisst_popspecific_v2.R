@@ -172,7 +172,7 @@ dev.off()
 
 #PLOTTING DIFFERENCES ACROSS TAXA
 ########################################
-setwd("~/Desktop/twisst_popspecific_v2/")
+setwd("~/project storage/project_dasanthera_novaseq/results/twisst_recenthybrids/")
 
 #call in the twisst plotting functions provided by devs
 source("~/project storage/project_dasanthera_novaseq/source_plot_twisst.R")
@@ -180,11 +180,11 @@ source("~/project storage/project_dasanthera_novaseq/source_plot_twisst.R")
 
 #make list of comparison tests and basename for files to read in
 basename = "REORDERED_WEIGHTS_"
-testnames <- c("dav116", "new-dav", "rup86", "rup101")
+testnames <- c("dav116", "rup86", "rup101")
 
 
 #specify the window data file
-window_data_file <- "~/Desktop/twisst_popspecific_v2/REORDERED_WINDOWS_10kbtrees.tsv.gz"
+window_data_file <- "~/project storage/project_dasanthera_novaseq/results/twisst_recenthybrids/REORDERED_WINDOWS_10kbtrees.tsv.gz"
 
 
 #make df to store all the relevant data
@@ -266,30 +266,91 @@ for (j in 1:length(testnames)){
 #for each window, for each comparison
 filtered_newdf <- newdf %>%
   group_by(pos, chromosome, testname) %>%
-  mutate(diff_concordant = -diff(topo1)) %>%
-  mutate(diff_disc1 = -diff(topo2)) %>%
-  mutate(diff_disc2 = -diff(topo3)) %>%
+  mutate(diff_Tc = -diff(topo1)) %>%
+  mutate(diff_Ti = -diff(topo2)) %>%
+  mutate(diff_Tn = -diff(topo3)) %>%
   filter(!testno == "test2") %>%
   select(-c(testno, topo1, topo2, topo3)) %>%
   ungroup()
 
 #restructure this to have an easier time plotting:
 finalplot <- pivot_longer(data = filtered_newdf,
-                     cols = c("diff_concordant", "diff_disc1", "diff_disc2"),
+                     cols = c("diff_Tc", "diff_Ti", "diff_Tn"),
                      names_to = c("topology_diff"))
-
+save(finalplot, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/fig4_twisstinfo.ggplot")
 
 #now we can plot each of the four comparisons on a single plot
 #to see how the differences in twisst topology weights may be similar across comparisons
-legendcolors <- c("diff_concordant" = "green", "diff_disc1" = "orange", "diff_disc2" = "blue")
+legendcolors <- c("diff_Tc" = "green", "diff_Ti" = "orange", "diff_Tn" = "blue")
 
-pdf("topodiffs_twisst_cross-comparisons.pdf", width = 15, height = 9)
+#1. Add boxes with highlights
+rects_dav116 <- data.frame(chromosome = c("scaf_1087", "scaf_2533", "scaf_2686"),
+                           start = c(18.5, 0, 0),
+                           end = c(25, 10, 9),
+                           testname = c("dav116","dav116","dav116"))
+
+rects_rup101 <- data.frame(chromosome = c("scaf_2533", "scaf_2687"),
+                           start = c(0, 0),
+                           end = c(23, 15),
+                           testname = c("rup101","rup101"))
+
+rects_rup86 <- data.frame(chromosome = c("scaf_1086", "scaf_1086",
+                                         "scaf_1087","scaf_1087",
+                                         "scaf_2532","scaf_2533",
+                                         "scaf_2684", "scaf_2685",
+                                         "scaf_2686", "scaf_2687"),
+                           start = c(0, 45, 0, 30, 12, 30, 0, 0, 7, 20),
+                           end = c(10, 55, 10, 45, 27, 40, 8, 10, 18, 50),
+                           testname = c("rup86","rup86","rup86","rup86","rup86",
+                                        "rup86","rup86","rup86","rup86","rup86"))
+
+pdf("topology-diffs_recenthybrids.pdf", width = 10, height = 3.5)
 ggplot(finalplot, aes(x = pos/1000000, y = value)) +
-  geom_line(aes(col = topology_diff)) +
   facet_grid(testname ~ chromosome,
              scales = "free_x", space = "free_x") +
+  geom_rect(data = rects_dav116, inherit.aes = FALSE,
+            aes(xmin = start, xmax = end,
+                ymin = -Inf, ymax = Inf),
+            fill = "grey", alpha = 0.5) +
+  geom_rect(data = rects_rup101, inherit.aes = FALSE,
+            aes(xmin = start, xmax = end,
+                ymin = -Inf, ymax = Inf),
+            fill = "grey", alpha = 0.5) +
+  geom_rect(data = rects_rup86, inherit.aes = FALSE,
+            aes(xmin = start, xmax = end,
+                ymin = -Inf, ymax = Inf),
+            fill = "grey", alpha = 0.5) +
+  geom_line(aes(col = topology_diff)) +
   xlab("Position on scaffold (Mb)") +
-  ylab("Difference in weighting between test 1 and test 2") +
-  scale_color_manual(values = legendcolors)
+  ylab("Difference in topology weights") +
+  scale_color_manual(values = legendcolors) +
+  theme_bw()
 dev.off()
+
+
+
+#2. add second plot, with average topo diff values per chromosome
+## WORK IN PROGRESS
+boxplotdf <- finalplot[finalplot$topology_diff == "diff_Ti", ]
+ggplot(boxplotdf, aes(x = chromosome, y = value, fill = testname)) +
+  geom_violin() +
+  #facet_grid(testname ~ .) +
+  labs(x = "Chromosome", y = "Value") +
+  scale_fill_manual(values = c("red", "green", "blue")) +
+  theme_bw()
+
+ggplot(boxplotdf, aes(x = chromosome, y = value, fill = testname)) +
+  stat_summary(fun = mean, geom = "point", shape = 21, size = 4, color = "black") +
+  labs(x = "Chromosome", y = "Value") +
+  scale_fill_manual(values = c("red", "green", "blue")) +
+  theme_bw()
+
+
+
+
+
 ########################################
+
+
+
+

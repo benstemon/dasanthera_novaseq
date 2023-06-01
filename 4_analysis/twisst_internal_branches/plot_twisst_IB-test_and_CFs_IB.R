@@ -4,7 +4,8 @@ library(cowplot)
 library(readr)
 library(utils)
 
-#STEP 1. for setting up window data file:
+#STEP 1. STOP!
+#Ensure this step has been performed before proceeding. for setting up window data file:
 #windows as current are not ordered numerically, so there needs to be reordering
 #both for the windows file and the weights files
 ########################################
@@ -200,22 +201,31 @@ for(i in 1:length(scaflist)){
 plotting_long <- t %>%
   pivot_longer(., cols = c(concordance_IB1, concordance_IB2, concordance_IB3),
                values_to = "concordance_proportion") %>%
+  na.omit() %>%
   mutate(discordance_proportion = 1-concordance_proportion)
+
+#write this to the R-object-compendium for future plotting
+save(plotting_long, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/fig3a.twisst_IB_weights_methodA.ggplot")
 
 
 #generate plot
-pdf("twisst_IB_method-a_0.05span.pdf", height = 9, width = 15)
-ggplot(plotting_long, aes(x = midpoint/1000000, y = discordance_proportion)) +
-  geom_smooth(col = "blue", aes(y = concordance_proportion), method = "loess", span = 0.05, linewidth = 0.75) +
-  geom_smooth(col = "red", aes(y = discordance_proportion), method = "loess", span = 0.05, linewidth = 0.75) +
-  facet_grid(name~scaffold,
+a <- ggplot(plotting_long, aes(x = midpoint/1000000, y = concordance_proportion, group = name)) +
+  geom_smooth(aes(y = concordance_proportion, col = name), se = F, method = "loess", span = 0.05, linewidth = 0.5) +
+  facet_grid(~scaffold,
              scales = "free_x",
              space = "free_x") +
   theme_bw() +
+  #xlim(0,1) +
   xlab("Position on scaffold (Mb)") +
-  scale_color_manual(values = colors) +
-  ggtitle("red = discordance, blue = concordance")
+  ylab("Topology weight") +
+  scale_color_manual(values = c("blue", "orange", "darkgreen"),
+                     labels = c("IB1", "IB2", "IB3")) +
+  ggtitle("Smoothed topology weights for trees concordant with internal branches") +
+  labs(color = "Internal branch")
+png("twisst_IB_method-a_0.05span.png", units = "in", height = 2, width = 10, res =400)
+a
 dev.off()
+
 
 ########################################
 
@@ -257,17 +267,23 @@ plotting_long <- newdf %>%
                names_to = 'internal_branch')
 
 
+#write this to the R-object-compendium for future plotting
+save(plotting_long, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/twisst_IB_weights_methodB.ggplot")
+
+
 #plot the newdf
-pdf("twisst_IB_method-b_2MB_5kb.pdf", height = 3, width = 15)
+png("twisst_IB_method-b_2MB_5kb.png", units = "in", height = 2, width = 10, res =400)
 ggplot(plotting_long, aes(x = pos/1000000, y = concordance_weight, group = internal_branch)) +
-  geom_line(aes(col = internal_branch)) +
+  geom_line(aes(col = internal_branch), linewidth = 0.5) +
   facet_grid(~chromosome, scales = "free_x", space = "free_x") +
   theme_bw() +
   xlab("Position on scaffold (Mb)") + 
-  scale_color_discrete(labels = c("rup+new+car","new+car","dav+fru"))
+  ylab("Topology weight") +
+  scale_color_manual(values = c("blue", "orange", "darkgreen"),
+                     labels = c("IB1", "IB2", "IB3")) +
+  ggtitle("Smoothed topology weights for trees concordant with internal branches") +
+  labs(color = "Internal branch")
 dev.off()
-
-
 
 
 
@@ -312,7 +328,6 @@ scfdata_long <- full_join(scf_tab, treenames, by = "PartID") %>%
 
 
 
-
 #plot these data
 pdf("SCFs_IB_unsmoothed.pdf", height = 9, width = 15)
 ggplot(scfdata_long, aes(x = pos/1000000, y = value, group = name)) +
@@ -324,6 +339,28 @@ ggplot(scfdata_long, aes(x = pos/1000000, y = value, group = name)) +
 dev.off()
 
 
+#second plot -- just concordant triplet. Use this one for figure.
+scfdata_short <- scfdata_long %>%
+  pivot_wider(values_from = value, names_from = name)
+#save to object
+save(scfdata_short, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/fig3b.ggplot")
+#load("~/project storage/project_dasanthera_novaseq/plot-making-compendium/fig3b.ggplot")
+
+
+b <- ggplot(scfdata_short, aes(x = pos/1000000, y = sC, group = internal_branch)) +
+  geom_line(aes(col = internal_branch), linewidth = 0.5) +
+  facet_grid(~chromosome, scales = "free_x", space = "free_x") +
+  theme_bw() +
+  xlab("Position on scaffold (Mb)") +
+  ylab("sC") +
+  scale_color_manual(values = c("blue", "orange","darkgreen"),
+                     labels = c("IB1", "IB2", "IB3")) +
+  ggtitle("Site concordance factors for the concordant triplet") +
+  labs(color = "Internal branch")
+
+png("SCFs_SConly_IB_0.05span.png", units = "in", height = 2, width = 10, res =400)
+b
+dev.off()
 
 #####################
   

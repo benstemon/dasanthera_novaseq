@@ -1,4 +1,4 @@
-/work/bs66/dasanthera_novaseq/mapped_filtered_bams/bws_car_28-5_S435_mapped_filtered.bam	xxx
+/work/bs66/dasanthera_novaseq/mapped_filtered_bams/bws_car_28-5_S435_mapped_filtered.bam	car
 /work/bs66/dasanthera_novaseq/mapped_filtered_bams/bws_car_91-6_S436_mapped_filtered.bam	car
 /work/bs66/dasanthera_novaseq/mapped_filtered_bams/bws_car_92-7_S437_mapped_filtered.bam	car
 /work/bs66/dasanthera_novaseq/mapped_filtered_bams/bws_dav_116-7_S428_mapped_filtered.bam	dav

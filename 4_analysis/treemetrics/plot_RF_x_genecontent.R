@@ -1,7 +1,7 @@
 #Fix this up so it produces plots with the new CDScontent data
 
 #load in data
-setwd('~/Desktop/')
+setwd('~/project storage/project_dasanthera_novaseq/results/treemetrics/')
 library(tidyverse)
 
 genomefile <- read.table("~/project storage/project_comparative_genome/genomes/davidsonii/annot_Pdavidsonii_1mb_chromo_info.txt")
@@ -104,19 +104,21 @@ badscafs <- c("scaffold_2531","scaffold_2446","scaffold_2151","scaffold_1085")
 
 #next, add midpoint info to the annotation file and treename file.
 #this will be used to determine the number of CDS withiin tree windows.
-annofile <- annofile %>%
+filter_annofile <- annofile %>%
   filter(!chromosome %in% badscafs) %>%
-  rowwise() %>%
-  mutate(midpoint = ceiling(mean(c(start, end)))/1000000) %>%
-  ungroup()
+  mutate(midpoint = ceiling((start+end)/2)) %>%
+  rename(bpstart = start, bpend = end)
+save(filter_annofile, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/filtered_annotationfile.obj")
 
-RFfile <- RFfile %>%
+filter_RFfile <- RFfile %>%
   filter(!chromosome %in% badscafs) %>%
-  rowwise() %>%
-  mutate(midpoint = ceiling(mean(c(bpstart, bpend)))/1000000) %>%
-  ungroup()
+  mutate(midpoint = ceiling((bpstart+bpend)/2)) %>%
+  mutate(chromosome = gsub("fold", "", chromosome))
+save(filter_RFfile, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/filtered_RFfile_10kb_ASTRAL.obj")
 
 
+#the original plot is here.
+#however, I would rather make the plot using gene density, vs. the histogram of annotations...
 pdf("RFdist_genic_content_astral10kbtree.pdf", width = 12, height = 5)
 ggplot() +
   geom_histogram(data = annofile, mapping = aes(x = midpoint, y = after_stat(ncount)),
@@ -133,7 +135,38 @@ ggplot() +
   theme(strip.text.x = element_text(size = 8))
 dev.off()
 
-#loess, lm, glm, gam
 
 
+###NEW PLOT, USING GENE DENSITY
+genicfractionfile <- read.delim("~/project storage/project_dasanthera_novaseq/results/miscellaneous/genicfraction_10kbwin_10kbslide.bed",
+                                sep = ' ', header = F) %>%
+  rename(chromosome = V1, bpstart = V2, bpend = V3, genic_fraction = V4) %>%
+  mutate(bpstart = bpstart + 1,
+         bpend = bpend + 1,
+         midpoint = ceiling((bpstart+bpend)/2),
+         chromosome = gsub("fold", "", chromosome))
+save(genicfractionfile, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/filtered_genic-fraction_10kb.obj")
+
+
+#writing the plot
+combplot_RF_GF <- inner_join(genicfractionfile, filter_RFfile,
+                             by = c("chromosome", "midpoint")) %>%
+  pivot_longer(., cols = c(genic_fraction, RFdist))
+save(combplot_RF_GF, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/fig3c.ggplot")
+
+#this is part of figure 3, so it is c
+
+c <- ggplot(combplot_RF_GF, aes(x = midpoint/1000000, y = value, group = name)) +
+  geom_smooth(linewidth = 0.5, aes(col = name), method = "loess", se = F, span = 0.15) +
+  facet_grid(~chromosome, scales = "free_x", space = "free_x") +
+  theme_bw() +
+  xlab("Position on scaffold (Mb)") +
+  #theme(axis.title.y = element_blank(),legend.title = element_blank()) +
+  scale_color_manual(values = c("red", "cyan"),
+                     labels = c("genic fraction", "Robinson-Foulds distance"))
+
+
+png("RFdist_genic-content_SMOOTHED.png", units = "in", height = 2, width = 10, res =400)
+c
+dev.off()
 
