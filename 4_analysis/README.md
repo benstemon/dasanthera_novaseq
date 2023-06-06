@@ -12,7 +12,7 @@ The fasta files generated from consensus have newlines every 50bp. Additionally,
 ##### Generate windowed gene tree input files
 This is done in two parts, with three files:
 1. Make output directories for each scaffold. 
-2. Generate gene trees with [`TREES_2.ARRAY_generate_windowed_genetree_infiles_masterscript.sh`](genetrees/TREES_2.ARRAY_generate_windowed_genetree_infiles_masterscript.sh), which uses the custom python script [`TREES.create_fasta_window_alignments.py`](TREES.create_fasta_window_alignments.py). This should function without modification. Parameters are defined in the batch script, including:
+2. Generate gene trees with [`TREES_2.ARRAY_generate_windowed_genetree_infiles_masterscript.sh`](genetrees/TREES_2.ARRAY_generate_windowed_genetree_infiles_masterscript.sh), which uses the custom python script [`TREES.create_fasta_window_alignments.py`](genetrees/TREES.create_fasta_window_alignments.py). This should function without modification. Parameters are defined in the batch script, including:
 	* Input fasta file
 	* Window size
 	* Missing data threshold (only generates windows in which all species pass missing data threshold)
