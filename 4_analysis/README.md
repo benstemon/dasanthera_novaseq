@@ -264,10 +264,10 @@ makeblastdb -dbtype prot -in uniprot_sprot.fasta
 ```
 
 
-* prep.3. Next, see [`1.assign_putative_protein_functions.sh`](fdm_outlier_analysis/1.assign_putative_protein_functions.sh) to perform the blastp, and then use maker scripts to add this information to the gff and fasta files. See [the maker website](http://weatherby.genetics.utah.edu/MAKER/wiki/index.php/MAKER_Tutorial_for_WGS_Assembly_and_Annotation_Winter_School_2018#Installation) for assistance with installing MAKER. I was able to get a local install working (not installed as a module on USC) with a bit of tinkering -- you will need to use the bootstrap method to install local::lib for the perl dependencies.
+* prep.3. Next, see [`1.assign_putative_protein_functions.sh`](dxy_outliers_hybridzone/1.assign_putative_protein_functions.sh) to perform the blastp, and then use maker scripts to add this information to the gff and fasta files. See [the maker website](http://weatherby.genetics.utah.edu/MAKER/wiki/index.php/MAKER_Tutorial_for_WGS_Assembly_and_Annotation_Winter_School_2018#Installation) for assistance with installing MAKER. I was able to get a local install working (not installed as a module on USC) with a bit of tinkering -- you will need to use the bootstrap method to install local::lib for the perl dependencies.
 
 
-* prep.4. Now we want to use interproscan to add protein domain information to the final annotations. There is a conda install available for interproscan with `conda install interproscan`. There is an additional step that needs to be completed for this install -- to acquire the databases. These are large databases that can take several hours to download. See [`2.install_interpro.sh`](fdm_outlier_analysis/2.install_interpro.sh) for a script to properly download and install these databases.
+* prep.4. Now we want to use interproscan to add protein domain information to the final annotations. There is a conda install available for interproscan with `conda install interproscan`. There is an additional step that needs to be completed for this install -- to acquire the databases. These are large databases that can take several hours to download. See [`2.install_interpro.sh`](dxy_outliers_hybridzone/2.install_interpro.sh) for a script to properly download and install these databases.
 
 
 * prep.5. Now we can run interproscan to identify GO terms in our GFF file. This can be done reasonably quickly on an interactive node:
@@ -293,15 +293,15 @@ iprscan2gff3 output.iprscan annot_Pdavidsonii_genome_FUNCTIONAL-INCLUDED.gff > a
 
 
 
-#### Identify gene models in fdM outlier windows (topGO)
+#### Identify gene models in dxy outlier windows (topGO)
 
 We will use topGO to perform a GO enrichment analysis -- to see whether the genes we identified in our fdM outliers are enriched for particular GO terms compared to the genomic background.
 
-* outliers.1. First, we need to create an input for the genomic background or gene universe. See [`3.generate_topgo_background_from_gff3.py`](fdm_outlier_analysis/3.generate_topgo_background_from_gff3.py) for python script to generate this input from the gff file with functional annotations. Note that the gff I am using here is a simple grep-filtered version that only contains the scaffolds of interest (this is the most "fair" genomic background to use).
+* outliers.1. First, we need to create an input for the genomic background or gene universe. See [`3.generate_topgo_background_from_gff3.py`](dxy_outliers_hybridzone/3.generate_topgo_background_from_gff3.py) for python script to generate this input from the gff file with functional annotations. Note that the gff I am using here is a simple grep-filtered version that only contains the scaffolds of interest (this is the most "fair" genomic background to use).
 Usage: `python generate_topgo_background_from_gff3.py -i annot_Pdavidsonii_1mb_genome_FUNCTIONAL-INCLUDED.gff -o topgo_background.tsv`
 
 
-* outliers.2. Next, identify the genes within the dxy outliers. The outlier windows were first identified with [`find_dxy_outliers_hybridzone.R`](find_dxy_outliers_hybridzone.R). These should have produced files starting with `"fdm_outliers"` that can then be used with bedtools and a .gff file to identify gene models contained within.
+* outliers.2. Next, identify the genes within the dxy outliers. The outlier windows were first identified with [`find_dxy_outliers_hybridzone.R`](dxy_outliers_hybridzone/find_dxy_outliers_hybridzone.R). These should have produced files starting with `"fdm_outliers"` that can then be used with bedtools and a .gff file to identify gene models contained within.
 
 ```shell
 module load bedtools
@@ -314,8 +314,8 @@ done
 ```
 
 
-#### GO enrichment analysis
-* See R script: [`4.GO-enrichment_topGO.R`](4.GO-enrichment_topGO.R). Conducts GO enrichment analysis in TopGO, performs exact Fisher tests, and outputs (a) significantly enriched GO terms and (b) genes of interest from the initial set with those GO terms included. This is done for BP (biological process), MF (molecular function), and CC (cellular component)
+*GO enrichment analysis*
+* See R script: [`4.GO-enrichment_topGO.R`](dxy_outliers_hybridzone/4.GO-enrichment_topGO.R). Conducts GO enrichment analysis in TopGO, performs exact Fisher tests, and outputs (a) significantly enriched GO terms and (b) genes of interest from the initial set with those GO terms included. This is done for BP (biological process), MF (molecular function), and CC (cellular component)
 
 
 OUTDATED:: Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
