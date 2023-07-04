@@ -209,6 +209,7 @@ dxydata <- read.delim("fullgenome_fullspecies_10kb_dxy.txt", header = T)
 fstdata <- read.delim("fullgenome_fullspecies_10kb_fst.txt", header = T)
 
 
+
 #join pidata with genic fraction, and fst+dxy with genic fraction
 #also filter
 plotting_pidata <- full_join(pidata, genicfractionfile) %>%

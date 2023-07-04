@@ -243,7 +243,7 @@ We also calculated the genic fraction for each of the windows produced by these 
 
 
 
-### Genes in fdM outliers and GO enrichment analysis
+### Genes in dxy outliers and GO enrichment analysis
 
 #### PREP (If needed) -- consolidate functional annotations
 
@@ -301,21 +301,25 @@ We will use topGO to perform a GO enrichment analysis -- to see whether the gene
 Usage: `python generate_topgo_background_from_gff3.py -i annot_Pdavidsonii_1mb_genome_FUNCTIONAL-INCLUDED.gff -o topgo_background.tsv`
 
 
-* outliers.2. Next, identify the genes within the fdm outliers. The outlier windows were first identified with [`plot_Dstats_introtests.R`](Dstats_introtests/plot_Dstats_introtests.R). These should have produced files starting with `"fdm_outliers"` that can then be used with bedtools and a .gff file to identify gene models contained within.
+* outliers.2. Next, identify the genes within the dxy outliers. The outlier windows were first identified with [`find_dxy_outliers_hybridzone.R`](find_dxy_outliers_hybridzone.R). These should have produced files starting with `"fdm_outliers"` that can then be used with bedtools and a .gff file to identify gene models contained within.
 
 ```shell
 module load bedtools
 CDSannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes.bed"
 
-for i in fdm_outliers*.bed;
+for i in 4z*.bed;
 do
-    bedtools intersect -a $i -b $CDSannot -wb | awk -v OFS='\t' '{ count[$13]++ } END { for (word in count) print word}' > unique_mRNA_$i
+    bedtools intersect -a $i -b $CDSannot -wb | awk -v OFS='\t' '{ count[$7]++ } END { for (word in count) print word}' > unique_mRNA_$i
 done
 ```
 
 
+#### GO enrichment analysis
+* See R script: [`4.GO-enrichment_topGO.R`](4.GO-enrichment_topGO.R). Conducts GO enrichment analysis in TopGO, performs exact Fisher tests, and outputs (a) significantly enriched GO terms and (b) genes of interest from the initial set with those GO terms included. This is done for BP (biological process), MF (molecular function), and CC (cellular component)
 
-Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
+
+OUTDATED:: Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.
+
 
 
 
