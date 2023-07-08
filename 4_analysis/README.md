@@ -309,13 +309,28 @@ CDSannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes
 
 for i in 4z*.bed;
 do
-    bedtools intersect -a $i -b $CDSannot -wb | awk -v OFS='\t' '{ count[$7]++ } END { for (word in count) print word}' > unique_mRNA_$i
+    bedtools intersect -a $i -b $CDSannot -wb | awk -v OFS='\t' '{ count[$8]++ } END { for (word in count) print word}' > unique_mRNA_$i
 done
 ```
 
 
 *GO enrichment analysis*
 * See R script: [`4.GO-enrichment_topGO.R`](dxy_outliers_hybridzone/4.GO-enrichment_topGO.R). Conducts GO enrichment analysis in TopGO, performs exact Fisher tests, and outputs (a) significantly enriched GO terms and (b) genes of interest from the initial set with those GO terms included. This is done for BP (biological process), MF (molecular function), and CC (cellular component)
+
+
+*Identifying gene models in outlier dxy regions*
+* Given the unique gene models identified from the dxy outlier analysis, one can identify which of these genes are annotated and their putative functions, etc. given the .gff file and a genes .bed file. Use [`find_annotation_and_coordinates_from_genemodel.py`](dxy_outliers_hybridzone/find_annotation_and_coordinates_from_genemodel.py) along with the unique mRNA list generated from [`find_dxy_outliers_hybridzone.R`](dxy_outliers_hybridzone/find_dxy_outliers_hybridzone.R), a genome.gff and a genes.bed file of the reference genome to generate an output file with all of the relevant information for that gene. Following that, you could find all unique gene models and annotations across all of the dxy outlier comparisons with something like this:
+```shell
+python find_annotation_and_coordinates_from_genemodel.py --bedfile single_isoform_davidsonii_FUNCTIONAL-INCLUDED-genes.bed --gfffile single_isoform_davidsonii_FUNCTIONAL-INCLUDED.gff --genesfile unique_mRNA_4z_dxy_hybridzone_outliers_filtered_new_rup.bed --outputfile genefinder_new_rup.txt
+
+# use a similar command for the other unique mRNA .bed outfiles
+# ...
+
+cat genefinder* > combined_tmp.txt
+sort combined_tmp.txt | uniq > combined_unique_genefinder.txt
+rm combined_tmp.txt
+
+```
 
 
 OUTDATED:: Finally, see [`1.ARRAY_blastx_fdm_outliers.sh`](fdm_outlier_analysis/1.ARRAY_blastx_fdm_outliers.sh) to run the blast search, and [`explore_CDS.R`](Dwindow_outlier_analysis/explore_CDS.R) to filter results and generate final tables of CDS function.

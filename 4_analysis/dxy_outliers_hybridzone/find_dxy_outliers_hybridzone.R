@@ -28,9 +28,7 @@ dxydata <- read.delim("~/project storage/project_dasanthera_novaseq/results/PIXY
 #filter data to include pops of interest, bad scafs, etc.
 maindata <- left_join(dxydata, genicfractionfile,
                       by = c("chromosome", "window_pos_1", "window_pos_2")) %>%
-  filter(pop1 %in% c("P_newberryi", "P_davidsonii", "P_rupicola") &
-           pop2 %in% c("P_newberryi", "P_davidsonii", "P_rupicola"),
-         !chromosome %in% badscafs) %>%
+  filter(!chromosome %in% badscafs) %>%
   na.omit() %>%
   mutate(midpoint = ceiling((window_pos_1+window_pos_2)/2)/1000000,
          pop1 = substr(pop1, 3, 5),
@@ -39,7 +37,9 @@ maindata <- left_join(dxydata, genicfractionfile,
          comp = paste(pop1, pop2, sep="_"),
          comp = ifelse(comp %in% c("new_dav", "dav_new"), "dav_new", comp),
          comp = ifelse(comp %in% c("new_rup", "rup_new"), "new_rup", comp),
-         comp = ifelse(comp %in% c("rup_dav", "dav_rup"), "dav_rup", comp)) %>%
+         comp = ifelse(comp %in% c("rup_dav", "dav_rup"), "dav_rup", comp),
+         comp = ifelse(comp %in% c("rup_fru", "fru_rup"), "fru_rup", comp)) %>%
+  filter(comp %in% c("dav_new", "new_rup", "dav_rup", "fru_rup")) %>%
   group_by(comp) %>%
   mutate(zscore_unfiltered = (avg_dxy - mean(avg_dxy)) / sd(avg_dxy))
 
@@ -56,14 +56,14 @@ write.csv(mean_dxy_unfiltered, file = "mean_dxy_unfiltered_hybridzonepops.csv")
 outliers_unfiltered <- maindata %>% filter(zscore_unfiltered > 4)
 write.csv(outliers_unfiltered, "4z_dxy_hybridzone_outliers_unfiltered.csv")
 
-#filter for duplicates and output format usable for .bed
-write_delim(distinct(outliers_unfiltered[,3:5] %>% mutate(chromosome = gsub("scaf", "scaffold", chromosome))),
-            "4z_dxy_hybridzone_outliers_unfiltered_deduplicate.bed",
+#output format usable for .bed
+write_delim(outliers_unfiltered[,c(3:5, 13)] %>% mutate(chromosome = gsub("scaf", "scaffold", chromosome)),
+            "4z_dxy_hybridzone_outliers_unfiltered.bed",
             delim = '\t', col_names = F)
 
 
 #plot raw manhattan plots for each comparison
-png("dxy_hybridzonepops_4z_outliers_unfiltered.png", width = 10, height = 3.5, units = "in", res = 400)
+png("dxy_hybridzonepops_4z_outliers_unfiltered.png", width = 10, height = 4.5, units = "in", res = 400)
 ggplot(maindata, aes(x = midpoint, y = avg_dxy)) +
   facet_grid(comp~chromosome, space = "free_x", scales = "free_x") +
   geom_point(size = 0.3) +
@@ -100,12 +100,16 @@ outliers_filtered <- filterdata %>% filter(zscore_filtered > 4)
 write.csv(outliers_filtered, "4z_dxy_hybridzone_outliers_filtered.csv")
 
 #filter for duplicates and output format usable for .bed
-write_delim(distinct(outliers_filtered[,3:5] %>% mutate(chromosome = gsub("scaf", "scaffold", chromosome))),
-            "4z_dxy_hybridzone_outliers_filtered_deduplicate.bed",
-            delim = '\t', col_names = F)
+for (i in unique(outliers_filtered$comp)){
+  write_delim(outliers_filtered[,c(3:5,13)] %>%
+                mutate(chromosome = gsub("scaf", "scaffold", chromosome)) %>%
+                filter(comp %in% i),
+              paste("4z_dxy_hybridzone_outliers_filtered_", i, ".bed", sep=""),
+              delim = "\t", col_names = F)
+}
 
 #plot raw manhattan plots for each comparison
-png("dxy_hybridzonepops_4z_outliers_filtered.png", width = 10, height = 3.5, units = "in", res = 400)
+png("dxy_hybridzonepops_4z_outliers_filtered.png", width = 10, height = 4.5, units = "in", res = 400)
 ggplot(filterdata, aes(x = midpoint, y = avg_dxy)) +
   facet_grid(comp~chromosome, space = "free_x", scales = "free_x") +
   geom_point(size = 0.3) +
@@ -137,7 +141,7 @@ write.csv(lm_output, file = "regression_filtered_hybridzonepops_linearmodels_dxy
 
 
 #generate plot for this
-png("dxy_hybridzonepops_vs._genicfraction_filtered.png", width = 2.2, height = 4, units = "in", res = 400)
+png("dxy_hybridzonepops_vs._genicfraction_filtered.png", width = 2.2, height = 5.3, units = "in", res = 400)
 ggplot(filterdata, aes(x = genic_fraction, y = avg_dxy)) +
   geom_point(size = 0.3, color = "gray40", alpha = 0.5) +
   geom_smooth(method = "lm", se = F, color = "firebrick") +
