@@ -54,7 +54,7 @@ numthreads=16
 #we will not implement any filters here (but you could feasibly do min depth filters)
 #pipe into view because the compression is much faster than bgzip
  vcftools --gzvcf $invcf \
- --max-maf 0 \
+ --max-non-ref-ac 0 \
  --recode --recode-INFO-all --stdout | 
  bcftools view - \
  --threads $numthreads \
