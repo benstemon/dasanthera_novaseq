@@ -304,7 +304,8 @@ scf_tab <- read.table('~/project storage/project_dasanthera_novaseq/results/tree
   rename(internal_branch = ID) %>%
   mutate(internal_branch = gsub("30", "IB1", internal_branch)) %>%
   mutate(internal_branch = gsub("26", "IB2", internal_branch)) %>%
-  mutate(internal_branch = gsub("32", "IB3", internal_branch))
+  mutate(internal_branch = gsub("32", "IB3", internal_branch)) %>%
+  mutate(sCF = sC/(sC+sD1+sD2))
 
 
 #also read in information for the tree names and informativeness of trees
@@ -324,7 +325,7 @@ treenames <- read.delim('~/project storage/project_dasanthera_novaseq/results/tr
 #join these two dfs by PartID, and change names of the 
 scfdata_long <- full_join(scf_tab, treenames, by = "PartID") %>%
   na.omit() %>%
-  pivot_longer(., cols = c(sC, sD1, sD2))
+  pivot_longer(., cols = c(sC, sD1, sD2, sCF))
 
 
 

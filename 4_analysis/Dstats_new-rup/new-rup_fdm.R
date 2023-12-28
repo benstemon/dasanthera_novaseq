@@ -127,9 +127,12 @@ for (j in 1:length(patternlist)){
   
 }
 
+
 #save filtered data.frame to permanent.obj for future plotting
 save(filterdf, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/new-rup-fdm_500bp.ggplot")
 
 
-#genic fraction vs. fdm?
+
+
+
 

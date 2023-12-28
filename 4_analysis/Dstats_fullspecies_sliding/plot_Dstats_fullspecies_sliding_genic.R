@@ -23,6 +23,42 @@ for (i in 1:length(filelist)){
 }
 
 
+# To just analyze each cross separately:
+# this creates new statistic absf_dM, which is always positive.
+# This is because fdM can be positive or negative.
+# When positive, comparison is P2-P3
+# When negative, comparison is P1-P3
+finaldata <- combdf %>%
+  rowwise() %>%
+  mutate(midpoint = ceiling(mean(c(windowStart, windowEnd)))) %>%
+  mutate(absf_dM = abs(f_dM)) %>%
+  mutate(absf_d = abs(f_d)) %>%
+  mutate(speciescomp_fdM = case_when((f_dM < 0) ~ paste(sort(str_split_1(test, "_")[c(1,3)]), collapse = "_"),
+                                     (f_dM > 0) ~ paste(sort(str_split_1(test, "_")[c(2,3)]), collapse = "_"))) %>%
+  mutate(speciescomp_fd = case_when((f_d < 0) ~ paste(sort(str_split_1(test, "_")[c(1,3)]), collapse = "_"),
+                                    (f_d > 0) ~ paste(sort(str_split_1(test, "_")[c(2,3)]), collapse = "_"))) %>%
+  ungroup()
+
+
+# Save this df to make a better plot later:
+save(finaldata, file = "~/project storage/project_dasanthera_novaseq/plot-making-compendium/fdm_vs_genic.obj")
+
+#plot results
+pdf("allcomps_fdm_vs_genic.pdf", height = 6, width = 15)
+ggplot(finaldata, aes(x = genic_fraction, y = absf_dM, group = speciescomp_fdM)) +
+  geom_point(size = 0.6, alpha = 0.2) +
+  geom_smooth(method = "lm", se = T, linewidth = 2) +
+  facet_wrap(~speciescomp_fdM,nrow=2,scales="free") +
+  ggtitle("f_dM vs. genic fraction") +
+  ylim(0,0.25) +
+  theme_bw() +
+  theme(text = element_text(size = 24))
+dev.off()
+
+
+
+# To make categories and do it that way:
+######################################################################
 #make a category to bin comparisons based on introgression "type"
 #be sure to list species comps in alphabetical order (this is how they will be sorted)
 bird_bird = c("new_rup")
@@ -67,7 +103,7 @@ ggplot(finaldata, aes(x = genic_fraction, y = absf_dM, group = speciescomp_fdM))
   theme_bw() +
   theme(text = element_text(size = 24))
 dev.off()
-
+######################################################################
 
 #fit linear models
 models <- finaldata %>%
@@ -87,6 +123,7 @@ for (i in 1: length(models$speciescomp_fdM)){
 }
 
 #also want to add in the regressions at the type of interaction
+# only if you split up by the eco type
 ecomodels <- finaldata %>%
   group_by(comptype_fdM) %>%
   do(model = lm(absf_dM ~ genic_fraction, data = .))

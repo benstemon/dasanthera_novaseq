@@ -307,7 +307,7 @@ Usage: `python generate_topgo_background_from_gff3.py -i annot_Pdavidsonii_1mb_g
 module load bedtools
 CDSannot="/work/bs66/project_compare_genomes/annot_Pdavidsonii_1mb.gffread.genes.bed"
 
-for i in 4z*.bed;
+for i in shared*.bed;
 do
     bedtools intersect -a $i -b $CDSannot -wb | awk -v OFS='\t' '{ count[$8]++ } END { for (word in count) print word}' > unique_mRNA_$i
 done

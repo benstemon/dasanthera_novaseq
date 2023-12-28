@@ -76,8 +76,8 @@ Dsuite DtriosCombine -t $treefile -o WHOLEGENOME "${chromlist[@]}"
 #change p-thresh to 1, and then put stars in blocks that are significant.
 Dsuite Fbranch $treefile $dstat_outdir/WHOLEGENOME_combined_tree.txt > $dstat_outdir/WHOLEGENOME_Fbranch.txt
 
-Dsuite Fbranch -Z $treefile WHOLEGENOME_combined_tree.txt > WHOLEGENOME_Fbranch.txt
-python $dtools/dtools.py WHOLEGENOME_Fbranch.txt $treefile
+Dsuite Fbranch -Z $treefile $dstat_outdir/WHOLEGENOME_combined_tree.txt > $dstat_outdir/WHOLEGENOME_Fbranch-Zscores.txt
+
 
 #move wholegenome files to new directories
 mkdir WHOLEGENOME.outfiles
